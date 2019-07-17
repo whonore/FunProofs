@@ -5,6 +5,7 @@ Require Import Lia.
 Require Import List.
 Require Import ListSet.
 Require Import Util.
+Import EqDecNotations.
 
 Section Intersect.
   Variable A : Type.
