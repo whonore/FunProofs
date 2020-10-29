@@ -1,5 +1,7 @@
 From FunProofs.Lib Require Export
+  Arith
   EqDec
+  List
   Tactics.
 
 Fact iff_not : forall b P,
