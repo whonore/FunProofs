@@ -78,7 +78,6 @@ Section RegLang.
 
   Global Instance re_equiv_equiv : Equivalence re_equiv.
   Proof. constructor; typeclasses eauto. Qed.
-
 End RegLang.
 
 Declare Scope re_scope.
@@ -371,7 +370,6 @@ Section Facts.
     - rewrite alt_match_or, Bool.orb_true_iff, IHcs, single_one_match.
       destr *; intuition (subst; eauto).
   Qed.
-
 End Facts.
 
 Section KleeneAlgebra.
@@ -401,7 +399,6 @@ Section KleeneAlgebra.
     kadd_kmul_distr_l x y z : x * (y + z) ~=~ x * y + x * z;
     kadd_kmul_distr_r x y z : (y + z) * x ~=~ y * x + z * x;
   }.
-
 End KleeneAlgebra.
 
 Instance RLang_KleeneAlgebra `{EqDec} : KleeneAlgebra ∅ ϵ Alt Concat re_equiv.
@@ -466,5 +463,4 @@ Section Tests.
   Proof. reflexivity. Qed.
   Goal [c] =~ ([r a; b; c]?).
   Proof. reflexivity. Qed.
-
 End Tests.

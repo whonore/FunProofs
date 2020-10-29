@@ -14,7 +14,7 @@ Section KVMap.
   Definition getvar (k : key) (m : kvmap) : value := m k.
   Definition setvar (kv : key * value) (m : kvmap) : kvmap :=
     fun k' => if fst kv == k' then snd kv else getvar k' m.
-  Definition setvars (kvs : list (key * value)) (m: kvmap) : kvmap :=
+  Definition setvars (kvs : list (key * value)) (m : kvmap) : kvmap :=
     fold_right setvar m kvs.
   Definition buildmap (d : value) (kvs : list (key * value)) : kvmap :=
     setvars kvs (initmap d).

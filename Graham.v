@@ -136,7 +136,6 @@ Section Composition.
     - enough (g (S n) < g (S (S n))) by lia.
       eapply strict_abundant_comp_strict with (n := S n); lia.
   Qed.
-
 End Composition.
 
 Section UpPowStrictAbundant.
@@ -166,11 +165,9 @@ Section UpPowStrictAbundant.
         eauto using up_unroll.
       rewrite up_pow_1_base; auto.
   Qed.
-
 End UpPowStrictAbundant.
 
 Section UpBaseStrict.
-
   Corollary up_pos : forall b n p, 0 < (S b) ^{S n} p.
   Proof.
     intros; destruct b; [rewrite up_1_1; auto |].
@@ -192,11 +189,9 @@ Section UpBaseStrict.
         eapply up_pow_strict_abundant; eauto using up_pos; lia.
       + rewrite !up_pow_1_base; lia.
   Qed.
-
 End UpBaseStrict.
 
 Section UpDegreeStrict.
-
   Corollary up_degree_strict : forall p b, 0 < p -> strict_increase 2 (fun n => b ^{n} p).
   Proof.
     intros * Hp; rewrite <- strict_increase_iff; hnf; intros.
@@ -204,7 +199,6 @@ Section UpDegreeStrict.
     destruct p; try easy.
     rewrite !up_unroll.
   Admitted.
-
 End UpDegreeStrict.
 
 (* Lemma up_pow_add : forall b p p' n, *)

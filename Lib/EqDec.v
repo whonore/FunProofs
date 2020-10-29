@@ -55,6 +55,6 @@ Ltac simplify_eq_dec :=
 Instance nat_eq_dec : EqDec nat := {| eq_dec := Nat.eq_dec |}.
 Instance Z_eq_dec : EqDec Z := {| eq_dec := Z.eq_dec |}.
 Instance bool_eq_dec : EqDec bool := {| eq_dec := bool_dec |}.
-Instance list_eq_dec {A} `{eq: EqDec A} : EqDec (list A) := {|
+Instance list_eq_dec {A} `{eq : EqDec A} : EqDec (list A) := {|
   eq_dec := list_eq_dec eq_dec
 |}.
