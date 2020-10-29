@@ -5,6 +5,7 @@ From Coq Require Import
   Permutation
   RelationClasses.
 From FunProofs.Lib Require Import
+  KVMap
   Util.
 Import ListNotations.
 
@@ -14,60 +15,24 @@ Notation "[ x ; y ; .. ; z ]  :> T" :=
 
 Declare Scope bexp.
 Delimit Scope bexp with bexp.
+Open Scope kvmap.
 
 (* Variables *)
 Definition id := nat.
-Definition varmap := id -> bool.
-
-Definition initmap : varmap := fun _ => false.
-Definition getvar (v: id) (vs: varmap) : bool := vs v.
-Definition setvar (val: id * bool) (vs: varmap) : varmap :=
-  fun v' => if fst val =? v' then (snd val) else getvar v' vs.
-Definition setvars (vals: list (id * bool)) (vs: varmap) : varmap :=
-  fold_right setvar vs vals.
-Definition buildmap (vals: list (id * bool)) : varmap := setvars vals initmap.
-
-Notation "v |-> b" := (v, b) (at level 10) : bexp.
-Notation "vs @ v" := (getvar v vs) (at level 20) : bexp.
-Notation "vs ! v" := (setvar v vs) (at level 20) : bexp.
-Notation "{ m1 , .. , mn }" := (buildmap (cons m1%bexp .. (cons mn%bexp nil) ..)) : bexp.
-
-Section Vars.
-  Open Scope bexp.
-
-  Lemma get_set_same : forall v val vs, vs ! (v, val) @ v = val.
-  Proof.
-    unfold getvar, setvar; intros; cbn; rewrite Nat.eqb_refl; auto.
-  Qed.
-
-  Lemma get_set_other : forall v v' val vs, v <> v' -> vs ! (v, val) @ v' = vs @ v'.
-  Proof.
-    unfold getvar, setvar; intros * Hneq; cbn.
-    apply Nat.eqb_neq in Hneq; rewrite Hneq; auto.
-  Qed.
-
-  Lemma setvars_correct : forall vals vs v val,
-    NoDup (map fst vals) -> In (v, val) vals ->
-    setvars vals vs @ v = val.
-  Proof.
-    induction vals as [| val' vals]; cbn -[getvar]; intros * Huniq Hin;
-      inv Huniq; intuition (subst; auto using get_set_same).
-    destruct val'; fold (setvars vals vs); rewrite get_set_other; auto.
-    intros ->; prename (_ -> False) into Hnin; apply Hnin.
-    cbn; rewrite in_map_iff; repeat esplit; eauto; auto.
-  Qed.
-
-End Vars.
+Definition varmap := kvmap id bool.
 
 (* Boolean Expressions *)
 Inductive bunary := BNeg.
 Inductive bbin := BAnd | BOr | BXor | BNand | BNor | BImpl | BBij.
-Inductive bop := B1 (f: bunary) | B2 (f: bbin).
+Inductive bop := B1 (f : bunary) | B2 (f : bbin).
 Inductive bexp :=
-  BVar (v: id) | BConst (b: bool) | BUn (f: bunary) (b: bexp) | BBin (f: bbin) (b1 b2: bexp).
+  | BVar (v : id)
+  | BConst (b : bool)
+  | BUn (f : bunary) (b : bexp)
+  | BBin (f : bbin) (b1 b2 : bexp).
 Scheme Equality for bbin.
 
-Fixpoint binterp (e: bexp) (vars: varmap) : bool :=
+Fixpoint binterp (e : bexp) (vars : varmap) : bool :=
   match e with
   | BVar v => vars @ v
   | BConst b => b
@@ -104,36 +69,36 @@ Coercion BConst : bool >-> bexp.
 Coercion B1 : bunary >-> bop.
 Coercion B2 : bbin >-> bop.
 
-Fixpoint subexp' (e e': bexp) :=
+Fixpoint subexp' (e e' : bexp) :=
   match e' with
   | BUn _ e'' => e = e'' \/ subexp' e e''
   | BBin _ e1 e2 => e = e1 \/ e = e2 \/ subexp' e e1 \/ subexp' e e2
   | _ => False
   end.
-Definition subexp (e e': bexp) := e = e' \/ subexp' e e'.
+Definition subexp (e e' : bexp) := e = e' \/ subexp' e e'.
 
 Arguments subexp _ _ /.
 
-Fixpoint has_bop (f: bop) (e: bexp) :=
+Fixpoint has_bop (f : bop) (e : bexp) :=
   match e with
   | BUn f' e' => f = f' \/ has_bop f e'
   | BBin f' e1 e2 => f = f' \/ has_bop f e1 \/ has_bop f e2
   | _ => False
   end.
 
-Definition has_only (fs: list bop) (e: bexp) :=
+Definition has_only (fs : list bop) (e : bexp) :=
   forall f, has_bop f e -> In f fs.
 
-Definition bcomplete (fs: list bop) :=
-  forall f: bool -> bool -> bool,
-    exists f': bexp,
+Definition bcomplete (fs : list bop) :=
+  forall f : bool -> bool -> bool,
+    exists f' : bexp,
       has_only fs f' /\
-      (forall b1 b2, f b1 b2 = [[f' | {0 |-> b1, 1 |-> b2}]])%bexp.
+      (forall b1 b2, f b1 b2 = [[f' | {0 |-> b1, 1 |-> b2}[false] ]])%bexp.
 
-Definition bequiv (fs: list bop) (fs': list bop) :=
-  forall e: bexp,
+Definition bequiv (fs : list bop) (fs' : list bop) :=
+  forall e : bexp,
     has_only fs e ->
-    exists e': bexp,
+    exists e' : bexp,
       has_only fs' e' /\ (forall vs, [[e | vs]] = [[e' | vs]])%bexp.
 
 Instance subexp_refl : Reflexive subexp.
