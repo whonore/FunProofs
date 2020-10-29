@@ -128,12 +128,11 @@ Section Facts.
   Lemma single_one_match cs c :
     cs =~ `c` <-> cs = c :: nil.
   Proof.
-    split; intros H; subst; cbn.
-    - destruct cs as [| c' cs]; cbn in *; try easy.
-      cases H.
-      + now rewrite null_one_match in H; subst.
-      + now rewrite empty_no_match in H.
-    - now rewrite eq_dec_true.
+    split; intros H; subst; cbn; simplify; auto.
+    destruct cs as [| c' cs]; cbn in *; try easy.
+    cases H.
+    - now rewrite null_one_match in H; subst.
+    - now rewrite empty_no_match in H.
   Qed.
 
   (* Alt *)
@@ -424,7 +423,6 @@ Qed.
 Section Tests.
   Import ListNotations.
 
-  Instance nat_alph : EqDec nat := { eq_dec := Nat.eq_dec }.
   Let a := 0.
   Let b := 1.
   Let c := 2.

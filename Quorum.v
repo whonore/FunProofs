@@ -20,9 +20,8 @@ Section Intersect.
     NoDup s -> In x s ->
     length s = S (length (set_remove eq_dec x s)).
   Proof.
-    induction s as [| y s]; cbn; intros * Hset Hin; intuition; subst.
-    - rewrite eq_dec_true; auto.
-    - inv Hset; rewrite eq_dec_false, IHs; cbn; intuition (subst; auto).
+    induction s as [| y s]; cbn; intros * Hset Hin; intuition; simplify; auto.
+    inv Hset; rewrite eq_dec_false, IHs; cbn; intuition (subst; auto).
   Qed.
 
   Lemma set_remove_length_not_in : forall x s,
@@ -74,12 +73,10 @@ Section Intersect.
     length s = (if in_dec eq_dec x s then 1 else 0) + length (set_remove eq_dec x s).
   Proof.
     induction s as [| x s]; intros * Hset; inv Hset; auto.
-    destruct (in_dec _ _ _); cbn in *; intuition (subst; auto).
-    - rewrite eq_dec_true; auto.
+    destruct (in_dec _ _ _); cbn in *; intuition (simplify; auto).
     - rewrite eq_dec_false; cbn; [| now intros ->].
       rewrite <- set_remove_length_in; auto.
-    - rewrite eq_dec_false; cbn; [| now intros ->].
-      rewrite <- set_remove_length_not_in; auto.
+    - cbn; rewrite <- set_remove_length_not_in; auto.
   Qed.
 
   Lemma disjoint_subset_length : forall (s ss1 ss2 : list A),

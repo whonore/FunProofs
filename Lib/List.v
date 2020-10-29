@@ -20,6 +20,13 @@ Section ListFacts.
       specialize (Heq (S n)); auto.
   Qed.
 
+  (* Every element of a list but the nth. *)
+  Definition remove_nth (n : nat) (xs : list A) :=
+    firstn n xs ++ skipn (n + 1) xs.
+
+  (* Apply f to every index of a list. *)
+  Definition mapIdx {B} (f : nat -> B) (xs : list A) := map f (seq 0 (length xs)).
+
   Section Repeat.
     Lemma repeat_nth : forall (x : A) n m,
       m < n ->
@@ -96,4 +103,14 @@ Section ListFacts.
     - now destruct xs, ys; cbn in *; auto.
     Qed.
   End Combine.
+
+  Section Concat.
+    Lemma concat_length : forall A (xs : list (list A)) n,
+      Forall (fun x => length x = n) xs ->
+      length (concat xs) = n * length xs.
+    Proof.
+      induction xs; intros * Hall; cbn; auto; inv Hall.
+      erewrite app_length, IHxs; eauto; lia.
+    Qed.
+  End Concat.
 End ListFacts.

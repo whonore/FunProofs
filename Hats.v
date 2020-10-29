@@ -11,141 +11,60 @@ From Coq Require Import
   Lia
   List
   PeanoNat.
-
-(* List facts *)
-Lemma filter_ext : forall A (f g : A -> bool),
-  (forall a : A, f a = g a) ->
-  forall xs, filter f xs = filter g xs.
-Proof.
-  intros * Heq; induction xs; cbn; auto.
-  rewrite Heq, IHxs; auto.
-Qed.
-
-Lemma filter_app : forall A xs ys (f : A -> bool),
-  filter f (xs ++ ys) = filter f xs ++ filter f ys.
-Proof.
-  induction xs as [| x xs]; intros; cbn; auto.
-  rewrite IHxs.
-  destruct (f x); auto.
-Qed.
-
-Lemma filter_concat : forall A xs (f : A -> bool),
-  filter f (concat xs) = concat (map (filter f) xs).
-Proof.
-  induction xs as [| x xs]; intros; cbn; auto.
-  rewrite filter_app, IHxs; auto.
-Qed.
-
-Lemma concat_same_length : forall A (xs : list (list A)) n,
-  Forall (fun x => length x = n) xs ->
-  length (concat xs) = n * length xs.
-Proof.
-  induction xs; intros * Hall; cbn; auto.
-  inversion Hall; subst; clear Hall.
-  erewrite app_length, IHxs; eauto; lia.
-Qed.
+From FunProofs.Lib Require Import
+  Enumerate
+  Util.
+Import EqDecNotations.
 
 Module Hat.
   Inductive Hat := Red | Blue.
 
-  Definition eq (h1 h2 : Hat) : bool :=
-    match h1, h2 with
-    | Red, Red | Blue, Blue => true
-    | _, _ => false
-    end.
-  Infix "==" := eq (at level 70).
-
-  Lemma eq_refl : forall h, (h == h) = true.
-  Proof. now destruct h. Qed.
-
-  Lemma eq_sym : forall h1 h2, (h1 == h2) = (h2 == h1).
-  Proof. now destruct h1. Qed.
-
-  Lemma eq_correct : forall h1 h2, h1 == h2 = true <-> h1 = h2.
-  Proof. now destruct h1, h2. Qed.
+  Global Instance Hat_eq_dec : EqDec Hat.
+  Proof. constructor; decide equality. Defined.
 
   Definition opp h := match h with Red => Blue | Blue => Red end.
 
   Lemma opp_involutive : forall h, opp (opp h) = h.
   Proof. now destruct h. Qed.
 
-  Lemma opp_neq : forall h, (h == opp h) = false.
+  Lemma opp_neq : forall h, h <> opp h.
   Proof. now destruct h. Qed.
 End Hat.
 
 Notation Hat := Hat.Hat.
 Notation Red := Hat.Red.
 Notation Blue := Hat.Blue.
-Infix "==" := Hat.eq (at level 70).
-
-(* Every element of a list but the nth. *)
-Definition all_but {A} (n : nat) (xs : list A) :=
-  firstn n xs ++ skipn (n + 1) xs.
-
-(* Apply f to every index of a list. *)
-Definition mapIdx {A B} (f : nat -> B) (xs : list A) := map f (seq 0 (length xs)).
-
-(* Enumerate all lists of length n using the elements of vals. *)
-Fixpoint enumerate {A} (vals : list A) (n : nat) : list (list A) :=
-  match n with
-  | 0 => nil :: nil
-  | S n' =>
-      let fs := map cons vals in
-      let vs := enumerate vals n' in
-      flat_map (fun xs => map (fun f => f xs) fs) vs
-  end.
 
 (* A strategy guesses a hat color given the visible hats. *)
 Definition strategy := list Hat -> Hat.
 
 (* Each person guesses by applying the strategy to all hats but their own. *)
 Definition guess (s : strategy) (hats : list Hat) :=
-  mapIdx (fun i => s (all_but i hats)) hats.
+  mapIdx (fun i => s (remove_nth i hats)) hats.
 
 Definition count_hats color hats :=
-  length (filter (fun h => h == color) hats).
+  length (filter (fun h => h ==? color) hats).
 
 (* The optimal strategy guesses based on the number of red (or blue equivalently)
    hats it can see. *)
 Definition optimal : strategy := fun hats =>
   if Nat.even (count_hats Red hats) then Blue else Red.
 
-(* Lift Hat.eq to lists. *)
-Fixpoint hats_eq (h1 h2 : list Hat) : bool :=
-  match h1, h2 with
-  | nil, nil => true
-  | h :: h1', h' :: h2' => (h == h') && hats_eq h1' h2'
-  | _, _ => false
-  end.
-
 (* A strategy wins if every person guesses correctly. *)
 Definition wins (s : strategy) (hats : list Hat) : bool :=
-  hats_eq (guess s hats) hats.
-
-Lemma hats_eq_correct : forall h1 h2, hats_eq h1 h2 = true <-> h1 = h2.
-Proof.
-  induction h1; destruct h2; cbn; try easy.
-  rewrite andb_true_iff, Hat.eq_correct.
-  split.
-  - intros (? & ?); subst; f_equal.
-    apply IHh1; auto.
-  - inversion 1; subst; split; auto.
-    apply IHh1; auto.
-Qed.
+  (guess s hats) ==? hats.
 
 Lemma count_hats_same : forall hats color,
   count_hats color (color :: hats) = S (count_hats color hats).
 Proof.
-  unfold count_hats; intros; cbn.
-  rewrite Hat.eq_refl; cbn; auto.
+  unfold count_hats; intros; cbn; simplify; auto.
 Qed.
 
 Definition count_hats_opp : forall hats color ocolor,
   ocolor = Hat.opp color ->
   count_hats color (ocolor :: hats) = count_hats color hats.
 Proof.
-  intros; subst; cbn.
-  rewrite Hat.eq_sym, Hat.opp_neq; auto.
+  intros; subst; cbn; rewrite eqb_false; auto using Hat.opp_neq.
 Qed.
 
 Lemma guess_blue : forall hats,
@@ -182,28 +101,6 @@ Proof.
   intros; cbn; rewrite guess_red; auto.
 Qed.
 
-Lemma enumerate_length : forall A n (vals : list A),
-  length (enumerate vals n) = length vals ^ n.
-Proof.
-  induction n; cbn; intros; auto.
-  rewrite flat_map_concat_map.
-  rewrite concat_same_length with (n := length vals).
-  rewrite map_length, IHn; auto.
-  rewrite Forall_forall; intros *.
-  rewrite in_map_iff; intros (? & ? & ?); subst.
-  rewrite !map_length; auto.
-Qed.
-
-(* For any finite type, enumerate contains all sets of that type. *)
-Lemma enumerate_finite : forall A xs (vals : list A),
-  (forall x : A, In x vals) ->
-  In xs (enumerate vals (length xs)).
-Proof.
-  induction xs; cbn; intros * Hfinite; auto.
-  rewrite in_flat_map.
-  eexists; rewrite map_map, in_map_iff; eauto.
-Qed.
-
 (* For any set of n hats, the number with an even number of red hats is 2^(n-1). *)
 Lemma enumerate_hats_half_even' : forall n,
   let all := enumerate (Red :: Blue :: nil) n in
@@ -212,7 +109,7 @@ Lemma enumerate_hats_half_even' : forall n,
 Proof.
   induction n; cbn; auto.
   cbn in IHn.
-  rewrite flat_map_concat_map, filter_concat, map_map.
+  rewrite flat_map_concat_map, <- concat_filter_map, map_map.
   erewrite map_ext with (g := fun x => if Nat.even (count_hats Red x) then _ else _).
   2:{
     intros; cbn [filter].
@@ -220,7 +117,7 @@ Proof.
     rewrite Nat.even_succ, <- Nat.negb_even.
     destruct (Nat.even _); cbn; auto.
   }
-  erewrite concat_same_length with (n := 1).
+  erewrite concat_length with (n := 1).
   - rewrite map_length, enumerate_length; cbn.
     rewrite Nat.sub_0_r, Nat.add_0_r; auto.
   - rewrite Forall_forall; intros *.
@@ -276,9 +173,9 @@ Proof.
   erewrite filter_ext with (g := fun hats => Nat.even (count_hats Red hats)); auto.
   intros hats; rewrite guess_wins_even.
   destruct hats; auto.
-  destruct (Nat.even _).
-  - rewrite hats_eq_correct; auto.
-  - cbn; rewrite Hat.eq_sym, Hat.opp_neq; auto.
+  destruct (Nat.even _); simplify; auto.
+  pose proof Hat.opp_neq.
+  cbn; rewrite eqb_false; congruence.
 Qed.
 
 (* enumerate contains all sets of hats. *)

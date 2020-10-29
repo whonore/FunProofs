@@ -1,3 +1,6 @@
+From FunProofs.Lib Require Import
+  EqDec.
+
 Tactic Notation "intuition" tactic3(tactic) := intuition tactic.
 Tactic Notation "intuition" := intuition auto.
 
@@ -82,7 +85,7 @@ Tactic Notation "destr" "*" :=
 
 (* Simplify equalities. *)
 Ltac inj H := assert_succeeds (injection H); inv H.
-Ltac simplify :=
+Ltac simplify_eqs :=
   repeat match goal with
          | H: ?x = ?x |- _ => clear dependent H
          | H: ?x <> ?x |- _ => contradict H; reflexivity
@@ -94,6 +97,8 @@ Ltac simplify :=
            solve [now exfalso; assert (y = z) by (rewrite <- H, <- H'; auto)]
          | _ => subst
          end.
+
+Ltac simplify := repeat (simplify_eqs || simplify_eq_dec).
 
 (* Rename hypotheses by pattern matching. *)
 Ltac prename' pat H name :=
