@@ -1,9 +1,12 @@
-.PHONY: all clean
-
 PROOFS := $(wildcard *.v Lib/*.v)
+
+.PHONY: all clean
 
 all: CoqMakefile
 	$(MAKE) -f $<
+
+$(PROOFS:.v=.vo): CoqMakefile
+	$(MAKE) -f $< $@
 
 _CoqProject.files: _CoqProject $(PROOFS)
 	echo $(PROOFS) | cat _CoqProject - > $@
