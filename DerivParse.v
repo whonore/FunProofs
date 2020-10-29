@@ -130,7 +130,7 @@ Section Facts.
   Proof.
     split; intros H; subst; cbn.
     - destruct cs as [| c' cs]; cbn in *; try easy.
-      destruct (c' == c).
+      cases H.
       + now rewrite null_one_match in H; subst.
       + now rewrite empty_no_match in H.
     - now rewrite eq_dec_true.
@@ -234,18 +234,17 @@ Section Facts.
     induction cs; cbn; split; intros H.
     - exists nil, nil; cbn; auto with bool.
     - destruct H as ([] & [] & ? & ? & ?); cbn in *; auto with bool; easy.
-    - destruct (nullable _) eqn:?.
+    - cases H.
       + rewrite alt_match_true, IHcs in H.
         destruct H; destr *; subst; eauto using app_nil_l, app_comm_cons.
       + rewrite IHcs in H; destr *; subst; eauto using app_nil_l, app_comm_cons.
     - destruct H as (cs1 & ? & Heq & ? & ?).
       destruct (nullable _) eqn:?.
       + rewrite alt_match_true, IHcs.
-        destruct cs1; cbn in Heq; inv Heq; eauto.
+        destruct cs1; cbn in Heq; simplify; eauto.
         left; eauto using app_comm_cons.
       + rewrite IHcs.
-        destruct cs1; cbn in Heq; inv Heq; eauto.
-        cbn in *; congruence.
+        destruct cs1; cbn in Heq; simplify; eauto.
   Qed.
 
   Corollary concat_match_false' cs re1 re2 :
