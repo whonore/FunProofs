@@ -12,6 +12,7 @@ Notation "[ x ]  :> T" := (cons (x : T) nil) (at level 0) : list_scope.
 Notation "[ x ; y ; .. ; z ]  :> T" :=
   (cons (x : T) (cons (y : T) .. (cons (z : T) nil) ..)) (at level 0) : list_scope.
 
+Declare Scope bexp.
 Delimit Scope bexp with bexp.
 
 (* Variables *)

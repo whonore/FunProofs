@@ -78,7 +78,7 @@ Section ListFacts.
     revert ys Heq; induction xs; intros; destruct ys;
       auto; try solve [now specialize (Heq 0)].
     f_equal.
-    - specialize (Heq 0); inj; auto.
+    - specialize (Heq 0); simplify; auto.
     - apply IHxs; intros.
       specialize (Heq (S n)); auto.
   Qed.
@@ -151,7 +151,7 @@ Section ListFacts.
     nth_error xs n = Some (fst p) /\ nth_error ys n = Some (snd p).
   Proof.
     induction n; cbn; intros * Hlen Hnth; auto.
-    - now destruct xs, ys; cbn in *; inj; auto.
+    - now destruct xs, ys; cbn in *; simplify; auto.
     - now destruct xs, ys; cbn in *; auto.
   Qed.
 End ListFacts.
@@ -380,7 +380,7 @@ Section Div11.
       assert (Nat.Even n -> Nat.Odd n -> False).
       { rewrite <- Nat.even_spec, <- Nat.odd_spec; unfold Nat.odd; now destruct (Nat.even _). }
       rewrite Hnth', Hnth2 in *.
-      destruct Hnth1 as [(? & ?) | (? & ?)], Hrep as [(? & ?) | (? & ?)]; intuition; inj.
+      destruct Hnth1 as [(? & ?) | (? & ?)], Hrep as [(? & ?) | (? & ?)]; intuition; simplify.
       + replace (snd _) with 1 by auto; lia.
       + replace (snd _) with (-1) by auto; lia.
     - match goal with

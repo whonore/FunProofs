@@ -81,6 +81,8 @@ Section RegLang.
 
 End RegLang.
 
+Declare Scope re_scope.
+Delimit Scope re_scope with re.
 Notation "'∅'" := (Empty) : re_scope.
 Notation "'ϵ'" := (Null) : re_scope.
 Notation "` c `" := (Single c) (at level 10) : re_scope.
@@ -93,7 +95,6 @@ Notation "'[r' c1 ; .. ; c2 ]" := (Class (cons c1 .. (cons c2 nil) ..)) : re_sco
 Notation "cs =~ re" := (matches re cs = true) (at level 70) : re_scope.
 Notation "cs !~ re" := (matches re cs = false) (at level 70) : re_scope.
 Infix "~=~" := (re_equiv) (at level 70) : re_scope.
-Delimit Scope re_scope with re.
 Open Scope re_scope.
 
 Section Facts.
@@ -235,8 +236,8 @@ Section Facts.
     - destruct H as ([] & [] & ? & ? & ?); cbn in *; auto with bool; easy.
     - destruct (nullable _) eqn:?.
       + rewrite alt_match_true, IHcs in H.
-        destruct H; destr; subst; eauto using app_nil_l, app_comm_cons.
-      + rewrite IHcs in H; destr; subst; eauto using app_nil_l, app_comm_cons.
+        destruct H; destr *; subst; eauto using app_nil_l, app_comm_cons.
+      + rewrite IHcs in H; destr *; subst; eauto using app_nil_l, app_comm_cons.
     - destruct H as (cs1 & ? & Heq & ? & ?).
       destruct (nullable _) eqn:?.
       + rewrite alt_match_true, IHcs.
@@ -297,7 +298,7 @@ Section Facts.
     red; intros; destruct (matches (_ | _) _) eqn:Halt.
     - rewrite alt_match_true in Halt.
       rewrite !concat_match_true in *.
-      destruct Halt; destr; subst; repeat (esplit; eauto).
+      destruct Halt; destr *; subst; repeat (esplit; eauto).
       all: rewrite alt_match_true; auto.
     - rewrite alt_match_false in Halt.
       rewrite !concat_match_false in *.
@@ -314,7 +315,7 @@ Section Facts.
     red; intros; destruct (matches (_ | _) _) eqn:Halt.
     - rewrite alt_match_true in Halt.
       rewrite !concat_match_true in *.
-      destruct Halt; destr; subst; repeat (esplit; eauto).
+      destruct Halt; destr *; subst; repeat (esplit; eauto).
       all: rewrite alt_match_true; auto.
     - rewrite alt_match_false in Halt.
       rewrite !concat_match_false in *.
@@ -366,11 +367,11 @@ Section Facts.
   Proof.
     induction cs; cbn; split; intros H.
     - now rewrite empty_no_match in H.
-    - now destr.
+    - now destr *.
     - rewrite alt_match_or, Bool.orb_true_iff, IHcs, single_one_match in H.
-      destruct H; destr; eauto.
+      destruct H; destr *; eauto.
     - rewrite alt_match_or, Bool.orb_true_iff, IHcs, single_one_match.
-      destr; intuition (subst; eauto).
+      destr *; intuition (subst; eauto).
   Qed.
 
 End Facts.
