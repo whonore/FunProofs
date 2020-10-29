@@ -1,7 +1,11 @@
-(* Definition of Graham's number and facts about Knuth "up-arrow" notation. *)
-Require Import Arith.
-Require Import Lia.
-Require Import Program.Wf.
+(*
+ * Definition of Graham's number and facts about Knuth "up-arrow" notation.
+ *)
+
+From Coq Require Import
+  Arith
+  Lia
+  Program.Wf.
 
 Definition lex_order (xs ys : nat * nat) :=
   let '(x1, x2) := xs in let '(y1, y2) := ys in

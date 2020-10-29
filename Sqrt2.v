@@ -1,12 +1,17 @@
-(* Irrationality of sqrt 2.
-   There are no relatively prime p and q such that (p/q)^2 = 2. *)
-From Coq Require Import ssreflect ssrfun ssrbool.
+(*
+ * Irrationality of sqrt 2.
+ * There are no relatively prime p and q such that (p/q)^2 = 2.
+ *)
+
+From Coq Require Import
+  ssrbool
+  ssreflect
+  ssrfun
+  Lia
+  QArith.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-
-Require Import QArith.
-Require Import Lia.
 
 Lemma Qred_int x : Qred (x # 1) = x # 1.
 Proof.

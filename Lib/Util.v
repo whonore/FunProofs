@@ -1,4 +1,4 @@
-From Lib Require Export
+From FunProofs.Lib Require Export
   EqDec
   Tactics.
 

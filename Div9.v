@@ -1,10 +1,14 @@
-(* Divisibility by 9
-   A decimal number is divisible by 9 iff the sum of its digits are. *)
+(*
+ * Divisibility by 9.
+ * A decimal number is divisible by 9 iff the sum of its digits are.
+ *)
 
-Require Import Lia.
-Require Import List.
-Require Import Util.
-Require Import ZArith.
+From Coq Require Import
+  Lia
+  List
+  ZArith.
+From FunProofs.Lib Require Import
+  Util.
 
 Open Scope Z.
 

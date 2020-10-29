@@ -1,9 +1,11 @@
-Require Import Bool.
-Require Import List.
-Require Import PeanoNat.
-Require Import Permutation.
-Require Import RelationClasses.
-Require Import Util.
+From Coq Require Import
+  Bool
+  List
+  PeanoNat
+  Permutation
+  RelationClasses.
+From FunProofs.Lib Require Import
+  Util.
 Import ListNotations.
 
 Notation "[ x ]  :> T" := (cons (x : T) nil) (at level 0) : list_scope.

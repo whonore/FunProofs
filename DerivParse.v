@@ -1,11 +1,15 @@
-(* Parsing regular expressions with derivatives.
-   http://matt.might.net/papers/might2011derivatives.pdf
-*)
-Require Import Arith.
-Require Import Bool.
-Require Import List.
-Require Import RelationClasses.
-Require Import Util.
+(*
+ * Parsing regular expressions with derivatives.
+ * http://matt.might.net/papers/might2011derivatives.pdf
+ *)
+
+From Coq Require Import
+  Arith
+  Bool
+  List
+  RelationClasses.
+From FunProofs.Lib Require Import
+  Util.
 Import EqDecNotations.
 
 Section RegLang.

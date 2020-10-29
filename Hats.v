@@ -1,13 +1,16 @@
-(* Hat problem.
-   A group of people are all given either a red or blue hat. They cannot communicate
-   with each other and they cannot see their own hat. They are eached asked to guess
-   what color hat they have and if any is wrong then they all lose. What strategy
-   allows them to win exactly 50% of the time?
-*)
-Require Import Bool.
-Require Import Lia.
-Require Import List.
-Require Import PeanoNat.
+(*
+ * Hat problem.
+ * A group of people are all given either a red or blue hat. They cannot communicate
+ * with each other and they cannot see their own hat. They are eached asked to guess
+ * what color hat they have and if any is wrong then they all lose. What strategy
+ * allows them to win exactly 50% of the time?
+ *)
+
+From Coq Require Import
+  Bool
+  Lia
+  List
+  PeanoNat.
 
 (* List facts *)
 Lemma filter_ext : forall A (f g : A -> bool),

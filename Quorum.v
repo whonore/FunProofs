@@ -1,10 +1,15 @@
-(* Quorum intersection.
-   Two quorums have a non-empty intersection. *)
-Require Import Arith.
-Require Import Lia.
-Require Import List.
-Require Import ListSet.
-Require Import Util.
+(*
+ * Quorum intersection.
+ * Two quorums have a non-empty intersection.
+ *)
+
+From Coq Require Import
+  Arith
+  Lia
+  List
+  ListSet.
+From FunProofs.Lib Require Import
+  Util.
 Import EqDecNotations.
 
 Section Intersect.
