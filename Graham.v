@@ -3,9 +3,9 @@
  *)
 
 From Coq Require Import
-  Arith
-  Lia
   Program.Wf.
+From FunProofs.Lib Require Import
+  Util.
 
 Definition lex_order (xs ys : nat * nat) :=
   let '(x1, x2) := xs in let '(y1, y2) := ys in

@@ -4,9 +4,6 @@
  *)
 
 From Coq Require Import
-  Arith
-  Lia
-  List
   ListSet.
 From FunProofs.Lib Require Import
   Util.

@@ -2,10 +2,6 @@
  * Bounded Buffer Queue implementation using an "array" (finite map).
  *)
 
-From Coq Require Import
-  Arith
-  Lia
-  List.
 From FunProofs.Lib Require Import
   KVMap
   Util.
@@ -74,7 +70,7 @@ Section BBQ.
     bbq_enqueue q v = Ok q' ->
     bbq_bounds q'.
   Proof.
-    unfold bbq_enqueue, bbq_full, eqb; intros * Hsz Hbounds Hq.
+    unfold bbq_enqueue, bbq_full, "==?"; intros * Hsz Hbounds Hq.
     cases *; inv Hbounds; simplify.
     constructor; cbn; lia.
   Qed.
@@ -114,7 +110,7 @@ Section BBQ.
   Proof.
     intros * Hsz HR; inv HR.
     remember (bbq_enqueue q v) as res eqn:Hq.
-    pose proof Hq; unfold bbq_enqueue, bbq_full, eqb in Hq.
+    pose proof Hq; unfold bbq_enqueue, bbq_full, "==?" in Hq.
     cases *; simplify; auto.
     - constructor; cbn; eauto using bbq_enqueue_bounds; [rewrite app_length; auto |].
       inv bbq_list_bounds0.
@@ -151,7 +147,7 @@ Section BBQ.
   Proof.
     intros * Hsz HR; inv HR.
     remember (bbq_dequeue q) as res eqn:Hq.
-    pose proof Hq; unfold bbq_dequeue, bbq_empty, eqb in Hq.
+    pose proof Hq; unfold bbq_dequeue, bbq_empty, "==?" in Hq.
     cases *; simplify; auto.
     - destruct lq; cbn in bbq_list_length0; [lia | split].
       + inv bbq_list_bounds0.

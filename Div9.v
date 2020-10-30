@@ -4,8 +4,6 @@
  *)
 
 From Coq Require Import
-  Lia
-  List
   ZArith.
 From FunProofs.Lib Require Import
   Series

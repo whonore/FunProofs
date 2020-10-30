@@ -7,9 +7,6 @@
  *)
 
 From Coq Require Import
-  Bool
-  Lia
-  List
   PeanoNat.
 From FunProofs.Lib Require Import
   Enumerate

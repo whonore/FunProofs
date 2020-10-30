@@ -1,9 +1,6 @@
 From Coq Require Import
-  Bool
-  List
   PeanoNat
-  Permutation
-  RelationClasses.
+  Permutation.
 From FunProofs.Lib Require Import
   KVMap
   Util.

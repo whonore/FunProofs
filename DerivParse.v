@@ -3,11 +3,6 @@
  * http://matt.might.net/papers/might2011derivatives.pdf
  *)
 
-From Coq Require Import
-  Arith
-  Bool
-  List
-  RelationClasses.
 From FunProofs.Lib Require Import
   Util.
 Import EqDecNotations.
@@ -249,7 +244,7 @@ Section Facts.
     cs !~ re1;;re2 <->
     ~(exists cs1 cs2,
       cs = cs1 ++ cs2 /\ cs1 =~ re1 /\ cs2 =~ re2).
-  Proof. apply iff_not, concat_match_true. Qed.
+  Proof. apply iff_not_true, concat_match_true. Qed.
 
   Corollary concat_match_false cs re1 re2 :
     cs !~ re1;;re2 <->
