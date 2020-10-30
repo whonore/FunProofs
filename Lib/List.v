@@ -5,6 +5,8 @@ From Coq Require Import
 From FunProofs.Lib Require Import
   Tactics.
 
+Notation "xs @@ x" := (xs ++ x :: nil) (at level 60, right associativity) : list_scope.
+
 Section ListFacts.
   Context {A : Type}.
 
@@ -113,4 +115,9 @@ Section ListFacts.
       erewrite app_length, IHxs; eauto; lia.
     Qed.
   End Concat.
+
+  Section NthError.
+    Lemma nth_error_nil : forall n, @nth_error A nil n = None.
+    Proof. now destruct n. Qed.
+  End NthError.
 End ListFacts.

@@ -57,3 +57,16 @@ Section ModFacts.
       rewrite mod_mod_mul, Z.mod_mod; auto.
   Qed.
 End ModFacts.
+
+Section DivNatFacts.
+  Open Scope nat.
+
+  Lemma div_range : forall n x y,
+    n * y <= x < (n + 1) * y ->
+    x / y = n.
+  Proof.
+    intros * Hrange.
+    replace x with (y * n + (x - y * n)) by lia.
+    symmetry; eapply Nat.div_unique; eauto; lia.
+  Qed.
+End DivNatFacts.
