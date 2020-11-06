@@ -1,6 +1,6 @@
 (*
- * Divisibility by 9.
- * A decimal number is divisible by 9 iff the sum of its digits are.
+ * Divisibility rules.
+ * E.g., an integer is divisible by 9 iff the sum of its digits are.
  *)
 
 From Coq Require Import
@@ -9,43 +9,53 @@ From FunProofs.Lib Require Import
   Series
   Util
   ZipMap.
+Import ListNotations.
 
 Open Scope Z.
 
-Definition digs_to_Z (ds : list Z) : Z :=
+Definition Z_of_digits (ds : list Z) : Z :=
   zsum (zipMap Z.mul ds (rev (tens (length ds)))).
+
+Lemma Z_of_digits_mod : forall ds m,
+  let n := Z_of_digits ds in
+  m <> 0 ->
+  n mod m = zsum (zipMap
+    (fun x y => (x * y) mod m)
+    (map (fun x => x mod m) ds)
+    (map (fun y => y mod m) (rev (tens (length ds))))) mod m.
+Proof.
+  intros; subst n.
+  rewrite <- zipMap_split.
+  unfold Z_of_digits, zipMap.
+  rewrite zsum_mod, map_map by easy.
+  erewrite map_ext with (g := fun xy => _); auto.
+  intros; rewrite Z.mul_mod by easy; eauto.
+Qed.
 
 Section Div9.
   Lemma sum_digs_9_congr : forall ds,
-    let n := digs_to_Z ds in
+    let n := Z_of_digits ds in
     n mod 9 = (zsum ds) mod 9.
   Proof.
-    intros *; subst n; unfold digs_to_Z, zipMap.
-    rewrite zsum_mod, map_map by easy.
-    erewrite map_ext with (g := fun xy => _).
-    2: intros; rewrite Z.mul_mod by easy; eauto.
-    erewrite (zipMap_split
-      (fun x => x mod 9) (fun y => y mod 9)
-      (fun x y => (x * y) mod 9)
-    ).
+    intros; subst n; rewrite Z_of_digits_mod by easy.
     unfold tens; rewrite map_rev, (geom_mod _ 1), geom_one, map_repeat, rev_repeat by easy.
-    rewrite zipMap_repeat_r by (rewrite map_length; auto).
-    erewrite map_map, map_ext with (g := fun x => _).
-    2: intros; rewrite Z.mul_1_r, Z.mod_mod; auto; lia.
-    now rewrite <- zsum_mod.
+    rewrite zipMap_repeat_r, map_map by (now rewrite map_length).
+    erewrite map_ext with (g := fun x => _).
+    2: now intros; rewrite Z.mul_1_r, Z.mod_mod.
+    symmetry; now apply zsum_mod.
   Qed.
 
-  Corollary sum_digs_9_div : forall ds,
-    let n := digs_to_Z ds in
+  Corollary divisibility_9 : forall ds,
+    let n := Z_of_digits ds in
     (9 | n) <-> (9 | zsum ds).
   Proof.
-    intros *; subst n; now rewrite <- !Z.mod_divide, sum_digs_9_congr.
+    intros; subst n; now rewrite <- !Z.mod_divide, sum_digs_9_congr.
   Qed.
 End Div9.
 
 Section Div3.
   Corollary sum_digs_3_congr : forall ds,
-    let n := digs_to_Z ds in
+    let n := Z_of_digits ds in
     n mod 3 = (zsum ds) mod 3.
   Proof.
     intros; subst n.
@@ -53,34 +63,28 @@ Section Div3.
     apply sum_digs_9_congr.
   Qed.
 
-  Corollary sum_digs_3_div : forall ds,
-    let n := digs_to_Z ds in
+  Corollary divisibility_3 : forall ds,
+    let n := Z_of_digits ds in
     (3 | n) <-> (3 | zsum ds).
   Proof.
-    intros *; subst n; now rewrite <- !Z.mod_divide, sum_digs_3_congr.
+    intros; subst n; now rewrite <- !Z.mod_divide, sum_digs_3_congr.
   Qed.
 End Div3.
 
 Section Div11.
   Lemma altsum_digs_11_congr : forall ds,
-    let n := digs_to_Z ds in
+    let n := Z_of_digits ds in
     n mod 11 = (zaltsum (rev ds)) mod 11.
   Proof.
-    intros *; subst n; unfold digs_to_Z, zipMap, zaltsum.
-    rewrite <- zsum_rev, <- map_rev, zsum_mod, map_map, combine_rev, rev_involutive; try easy.
-    2: unfold tens, geom; rewrite rev_length, map_length, seq_length; auto.
-    erewrite map_ext with (g := fun xy => _).
-    2: intros; rewrite Z.mul_mod by easy; eauto.
-    erewrite (zipMap_split
-      (fun x => x mod 11) (fun y => y mod 11)
-      (fun x y => (x * y) mod 11)
-    ).
+    intros; subst n; rewrite Z_of_digits_mod by easy.
+    rewrite <- zsum_rev, zipMap_rev, <- !map_rev, rev_involutive.
+    2: unfold tens; now rewrite !map_length, rev_length, geom_length.
     unfold tens; rewrite map_rev, (geom_mod _ (-1)), geom_none by easy.
     rewrite <- map_rev, <- zipMap_split.
     erewrite map_ext with (g := fun xy => _).
     2: intros; rewrite <- Z.mul_mod by easy; eauto.
-    rewrite (zsum_mod (altmap _ _)) by easy.
-    f_equal; f_equal.
+    unfold zaltsum; rewrite (zsum_mod (altmap _ _)) by easy.
+    do 2 f_equal.
     apply list_eq_pointwise; intros.
     assert (n < length ds \/ n >= length ds)%nat as [|] by lia.
     - match goal with
@@ -116,10 +120,37 @@ Section Div11.
         rewrite map_length, ?combine_length, altmap_length, rev_length, ?repeat_length; lia.
   Qed.
 
-  Corollary sum_digs_11_div : forall ds,
-    let n := digs_to_Z ds in
+  Corollary divisibility_11 : forall ds,
+    let n := Z_of_digits ds in
     (11 | n) <-> (11 | zaltsum (rev ds)).
   Proof.
-    intros *; subst n; now rewrite <- !Z.mod_divide, altsum_digs_11_congr.
+    intros; subst n; now rewrite <- !Z.mod_divide, altsum_digs_11_congr.
   Qed.
 End Div11.
+
+Section Div2.
+  Lemma last_dig_even_congr : forall ds,
+    let n := Z_of_digits ds in
+    n mod 2 = (last ds 0) mod 2.
+  Proof.
+    intros; subst n; rewrite Z_of_digits_mod by easy.
+    assert (ds = nil \/ 0 < length ds)%nat as [|]
+      by (destruct ds; cbn; intuition lia); [subst; auto |].
+    unfold tens; rewrite map_rev, (geom_mod _ 0), geom_zero, map_cons, map_repeat by easy.
+    rewrite (@app_removelast_last _ ds 0) at 1 by (now destruct ds).
+    rewrite map_app; cbn [rev]; rewrite rev_repeat, zipMap_app; auto.
+    2: now rewrite map_length, repeat_length, removelast_length.
+    rewrite zipMap_repeat_r by (now rewrite map_length, removelast_length).
+    erewrite map_map, map_ext with (g := fun x => _).
+    2: now intros; rewrite Z.mul_0_r; cbn.
+    rewrite map_const, removelast_length, zsum_app, zsum_zero; cbn.
+    now rewrite Z.add_0_r, Z.mul_1_r, !Z.mod_mod.
+  Qed.
+
+  Lemma divisibility_2 : forall ds,
+    let n := Z_of_digits ds in
+    (2 | n) <-> (2 | last ds 0).
+  Proof.
+    intros; subst n; now rewrite <- !Z.mod_divide, last_dig_even_congr.
+  Qed.
+End Div2.

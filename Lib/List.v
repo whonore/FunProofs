@@ -73,10 +73,18 @@ Section ListFacts.
       induction n; intros; cbn; auto.
       rewrite IHn; auto.
     Qed.
+
+    Lemma map_const {B} : forall (xs : list A) (c : B),
+      map (fun _ => c) xs = repeat c (length xs).
+    Proof.
+      induction xs; intros; cbn; auto.
+      rewrite IHxs; auto.
+    Qed.
   End Repeat.
 
   Section Combine.
     Context {B : Type}.
+
     Lemma combine_app : forall (xs xs' : list A) (ys ys' : list B),
       length xs = length ys ->
       length xs' = length ys' ->
@@ -107,7 +115,7 @@ Section ListFacts.
   End Combine.
 
   Section Concat.
-    Lemma concat_length : forall A (xs : list (list A)) n,
+    Lemma concat_length : forall (xs : list (list A)) n,
       Forall (fun x => length x = n) xs ->
       length (concat xs) = n * length xs.
     Proof.
@@ -120,4 +128,10 @@ Section ListFacts.
     Lemma nth_error_nil : forall n, @nth_error A nil n = None.
     Proof. now destruct n. Qed.
   End NthError.
+
+  Section Last.
+    Lemma removelast_length : forall (xs : list A),
+      length (removelast xs) = length xs - 1.
+    Proof. intros; rewrite removelast_firstn_len, firstn_length; lia. Qed.
+  End Last.
 End ListFacts.

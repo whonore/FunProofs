@@ -1,5 +1,7 @@
 From Coq Require Import
   List.
+From FunProofs.Lib Require Import
+  List.
 
 Section ZipMap.
   Context {A B C : Type}.
@@ -22,5 +24,19 @@ Section ZipMap.
   Proof.
     unfold zipMap; induction xs; cbn; intros; subst; auto.
     erewrite <- IHxs; eauto; auto.
+  Qed.
+
+  Lemma zipMap_app : forall (f : A -> B -> C) xs xs' ys ys',
+    length xs = length ys -> length xs' = length ys' ->
+    zipMap f (xs ++ xs') (ys ++ ys') = zipMap f xs ys ++ zipMap f xs' ys'.
+  Proof.
+    unfold zipMap; intros; rewrite combine_app, map_app; auto.
+  Qed.
+
+  Lemma zipMap_rev : forall (f : A -> B -> C) xs ys,
+    length xs = length ys ->
+    rev (zipMap f xs ys) = zipMap f (rev xs) (rev ys).
+  Proof.
+    unfold zipMap; intros; rewrite <- map_rev, combine_rev; auto.
   Qed.
 End ZipMap.
