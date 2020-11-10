@@ -114,7 +114,7 @@ Proof.
     rewrite Nat.even_succ, <- Nat.negb_even.
     destruct (Nat.even _); cbn; auto.
   }
-  erewrite concat_length with (n := 1).
+  erewrite (concat_length _ 1).
   - rewrite map_length, enumerate_length; cbn.
     rewrite Nat.sub_0_r, Nat.add_0_r; auto.
   - rewrite Forall_forall; intros *.

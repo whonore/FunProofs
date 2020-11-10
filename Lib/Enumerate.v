@@ -19,8 +19,8 @@ Lemma enumerate_length : forall A n (vals : list A),
 Proof.
   induction n; cbn; intros; auto.
   rewrite flat_map_concat_map.
-  rewrite concat_length with (n := length vals).
-  rewrite map_length, IHn; auto.
+  rewrite (concat_length _ (length vals)).
+  { rewrite map_length, IHn; auto. }
   rewrite Forall_forall; intros *.
   rewrite in_map_iff; intros (? & ? & ?); subst.
   rewrite !map_length; auto.
