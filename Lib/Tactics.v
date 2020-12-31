@@ -85,30 +85,36 @@ Tactic Notation "destr" "*" :=
 
 (* Simplify equalities. *)
 Ltac inj H := assert_succeeds (injection H); inv H.
+Ltac clear_redundant_eq :=
+  repeat match goal with
+         | H: ?x = ?x |- _ => clear dependent H
+         | H: ?x = ?y, H': ?x = ?y |- _ => clear dependent H'
+         | H: ?x = ?y, H': ?y = ?x |- _ => clear dependent H'
+         end.
 Ltac add_eq_trans x y z H H' :=
   lazymatch goal with
   | _: y = z |- _ => fail
   | _: z = y |- _ => fail
-  | _ => assert (y = z) by (transitivity x; auto using H, H')
+  | |- _ =>
+    assert (y = z) by (transitivity x; auto using H, H');
+    assert_fails (progress clear_redundant_eq)
   end.
 Ltac simplify_eqs :=
-  repeat match goal with
-         (* Clear redundant equalities *)
-         | H: ?x = ?x |- _ => clear dependent H
-         | H: ?x = ?y, H': ?x = ?y |- _ => clear dependent H'
-         (* Injection *)
-         | H: ?x = ?y |- _ => inj H
-         (* Contradictions *)
-         | H: ?x <> ?x |- _ => contradict H; reflexivity
-         | H: ?x = ?y, H': ?x <> ?y |- _ => rewrite H in H'
-         | H: ?x = ?y, H': ?y <> ?x |- _ => rewrite H in H'
-         | H: ?x = ?y |- _ => discriminate H
-         (* Add transitive equalities *)
-         | H: ?x = ?y, H': ?x = ?z |- _ => add_eq_trans x y z H H'
-         | H: ?x = ?y, H': ?z = ?x |- _ => add_eq_trans x y z H H'
-         | H: ?y = ?x, H': ?z = ?x |- _ => add_eq_trans x y z H H'
-         | _ => subst
-         end.
+  repeat (clear_redundant_eq;
+    match goal with
+    (* Injection *)
+    | H: ?x = ?y |- _ => inj H
+    (* Contradictions *)
+    | H: ?x <> ?x |- _ => contradict H; reflexivity
+    | H: ?x = ?y, H': ?x <> ?y |- _ => rewrite H in H'
+    | H: ?x = ?y, H': ?y <> ?x |- _ => rewrite H in H'
+    | H: ?x = ?y |- _ => discriminate H
+    (* Add transitive equalities *)
+    | H: ?x = ?y, H': ?x = ?z |- _ => add_eq_trans x y z H H'
+    | H: ?x = ?y, H': ?z = ?x |- _ => add_eq_trans x y z H H'
+    | H: ?y = ?x, H': ?z = ?x |- _ => add_eq_trans x y z H H'
+    | _ => subst
+    end).
 
 Ltac simplify := repeat (simplify_eqs || simplify_eq_dec).
 
@@ -129,6 +135,12 @@ Goal forall (f : nat -> nat) (x y z : nat), f x <> f z -> f x = f y -> f z = f y
 Proof. intros; simplify. Qed.
 Goal forall (f : nat -> nat) (x y z : nat), f x <> f z -> f y = f x -> f z = f y -> False.
 Proof. intros; simplify. Qed.
+Goal forall (f : nat -> nat) (x y : nat), f x = f y -> f y = f x -> True.
+Proof. intros; simplify; auto. Qed.
+Goal forall (f : nat -> nat) (x y : nat), f x = f y -> f y = f x -> True.
+Proof. intros; simplify; auto. Qed.
+Goal forall (f : nat -> nat) (x y z : nat), f x = f y -> f y = f z -> f z = f x -> True.
+Proof. intros; simplify; auto. Qed.
 
 (* Rename hypotheses by pattern matching. *)
 Ltac prename' pat H name :=
