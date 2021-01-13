@@ -7,6 +7,7 @@ From Coq Require Export
 From FunProofs.Lib Require Export
   Arith
   EqDec
+  Function
   Logic
   List
   Tactics.

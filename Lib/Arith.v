@@ -70,3 +70,13 @@ Section DivNatFacts.
     symmetry; eapply Nat.div_unique; eauto; lia.
   Qed.
 End DivNatFacts.
+
+Section ZMaxFacts.
+  Open Scope Z.
+
+  Lemma Zmax_case_strong_lt : forall n m (P : Z -> Type),
+    (m < n -> P n) -> (n <= m -> P m) -> P (Z.max n m).
+  Proof.
+    intros; destruct (Z_lt_le_dec m n); rewrite ?Z.max_l, ?Z.max_r by lia; auto.
+  Qed.
+End ZMaxFacts.

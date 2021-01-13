@@ -143,8 +143,8 @@ Section Div2.
     rewrite zipMap_repeat_r by (now rewrite map_length, removelast_length).
     erewrite map_map, map_ext with (g := fun x => _).
     2: now intros; rewrite Z.mul_0_r; cbn.
-    rewrite map_const, removelast_length, zsum_app, zsum_zero; cbn.
-    now rewrite Z.add_0_r, Z.mul_1_r, !Z.mod_mod.
+    rewrite map_const, removelast_length, zsum_app0, zsum_repeat; cbn.
+    now rewrite Z.mul_1_r, !Z.mod_mod.
   Qed.
 
   Lemma divisibility_2 : forall ds,
