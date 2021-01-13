@@ -12,4 +12,4 @@ From FunProofs.Lib Require Export
   List
   Tactics.
 
-Global Set Default Goal Selector "!".
+#[global] Set Default Goal Selector "!".

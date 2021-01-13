@@ -15,7 +15,7 @@ Section BBQ.
     head: nat;
     size: nat;
   }.
-  Global Arguments bbq _ _ : clear implicits.
+  #[global] Arguments bbq _ _ : clear implicits.
 
   Inductive BBQError := BBQFull | BBQEmpty | BBQOOB.
 

@@ -16,7 +16,7 @@ Import EqDecNotations.
 Module Hat.
   Inductive Hat := Red | Blue.
 
-  Global Instance Hat_eq_dec : EqDec Hat.
+  #[global] Instance Hat_eq_dec : EqDec Hat.
   Proof. constructor; decide equality. Defined.
 
   Definition opp h := match h with Red => Blue | Blue => Red end.

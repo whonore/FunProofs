@@ -50,30 +50,29 @@ Section Sets.
 
   Definition subset (s s' : set) : Prop := incl (projT1 s) (projT1 s').
 
-  Global Instance subset_refl : Reflexive subset.
+  #[global] Instance subset_refl : Reflexive subset.
   Proof. red; intros; apply incl_refl. Qed.
 
-  Global Instance subset_trans : Transitive subset.
+  #[global] Instance subset_trans : Transitive subset.
   Proof. red; intros; eapply incl_tran; eauto. Qed.
 
   Instance subset_preorder : PreOrder subset.
   Proof. constructor; typeclasses eauto. Qed.
 
   Definition equiv (s s' : set) : Prop := subset s s' /\ subset s' s.
-
-  Global Instance equiv_refl : Reflexive equiv.
+  #[global] Instance equiv_refl : Reflexive equiv.
   Proof. split; reflexivity. Qed.
 
-  Global Instance equiv_sym : Symmetric equiv.
+  #[global] Instance equiv_sym : Symmetric equiv.
   Proof. unfold equiv; split; intuition auto. Qed.
 
-  Global Instance equiv_trans : Transitive equiv.
+  #[global] Instance equiv_trans : Transitive equiv.
   Proof. unfold equiv; split; etransitivity; intuition eauto. Qed.
 
-  Global Instance equiv_preorder : PreOrder equiv.
+  #[global] Instance equiv_preorder : PreOrder equiv.
   Proof. constructor; typeclasses eauto. Qed.
 
-  Global Instance equiv_equivalence : Equivalence equiv.
+  #[global] Instance equiv_equivalence : Equivalence equiv.
   Proof. constructor; typeclasses eauto. Qed.
 
   Fixpoint _disjoint (s1 s2 : list A) : bool :=
@@ -240,7 +239,7 @@ Section Sets.
 End Sets.
 
 Arguments set _ : clear implicits.
-Global Opaque
+#[global] Opaque
   set
   empty
   add

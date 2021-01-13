@@ -10,7 +10,7 @@ From FunProofs.Lib Require Import
 From FunProofs.Lib Require Export
   AltMap.
 
-Local Open Scope Z.
+#[local] Open Scope Z.
 
 Section Maximum.
   Definition maximum min (xs : list Z) : Z :=
