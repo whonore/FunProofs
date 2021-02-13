@@ -8,106 +8,10 @@ From FunProofs.Lib Require Import
   Tactics.
 From FunProofs.Lib Require Export
   AltMap
+  Extrema
   Sum.
 
 #[local] Open Scope Z.
-
-Section Maximum.
-  Definition maximum min (xs : list Z) : Z :=
-    fold_right Z.max min xs.
-
-  Definition maximum0 (xs : list Z) : Z :=
-    maximum (hd 0 xs) xs.
-
-  Lemma maximum_case : forall min xs,
-    let m := maximum min xs in
-    Forall (fun x => x <= m) xs /\
-    (In m xs \/ (m = min /\ Forall (fun x => x < min) xs)).
-  Proof.
-    induction xs as [| x xs]; cbn in *; auto;
-      destruct IHxs as (Hmax & Hin); fold (maximum min xs); split.
-    - constructor; auto using Z.le_max_l.
-      rewrite Forall_forall in *; intros * Hin'; apply Hmax in Hin'; lia.
-    - rewrite Z.max_comm; pattern (Z.max (maximum min xs) x);
-        apply Zmax_case_strong_lt; intros; auto.
-      intuition auto.
-      right; split; auto; constructor; auto; lia.
-  Qed.
-
-  Lemma maximum0_case : forall xs,
-    let m := maximum0 xs in
-    xs <> nil ->
-    Forall (fun x => x <= m) xs /\ In m xs.
-  Proof.
-    intros; pose proof (maximum_case (hd 0 xs) xs).
-    repeat intuition auto.
-    destruct xs as [| x xs]; cbn in *; [easy |].
-    prename (fun _ => _ < _) into Hfalse; inv Hfalse; lia.
-  Qed.
-
-  Lemma maximum_lower_bound : forall min xs,
-    min <= maximum min xs.
-  Proof.
-    unfold maximum; induction xs as [| x xs]; cbn; intros; lia.
-  Qed.
-
-  Lemma maximum_le_mono : forall min min' xs,
-    min <= min' ->
-    maximum min xs <= maximum min' xs.
-  Proof.
-    unfold maximum; induction xs as [| x xs]; cbn; intros; lia.
-  Qed.
-
-  Lemma maximum_cons_le : forall min xs x,
-    maximum min xs <= maximum min (x :: xs).
-  Proof. unfold maximum; intros; cbn; lia. Qed.
-
-  Lemma maximum_in : forall min xs,
-    let m := maximum min xs in
-    min < maximum min xs ->
-    In m xs.
-  Proof.
-    induction xs as [| x xs]; cbn; intros; [lia |].
-    fold (maximum min xs) in *.
-    assert (x < maximum min xs \/ maximum min xs <= x) as [|] by lia.
-    - rewrite Z.max_r in * by lia; auto.
-    - rewrite Z.max_l in * by lia; auto.
-  Qed.
-
-  Lemma maximum_weaken_in : forall min min' xs,
-    min <= min' ->
-    In (maximum min' xs) xs ->
-    maximum min xs = maximum min' xs.
-  Proof.
-    induction xs as [| x xs]; cbn; intros * Hlt Hin; [easy |].
-    pose proof (maximum_le_mono min min' xs); unfold maximum in *.
-    destruct Hin as [Heq | Hin]; subst; try lia.
-    pattern (Z.max x (fold_right Z.max min' xs)); apply Z.max_case_strong; intros; try lia.
-    rewrite Z.max_r in Hin by auto; apply IHxs in Hin; auto; lia.
-  Qed.
-
-  Corollary maximum_weaken_lt : forall min min' xs,
-    min <= min' < maximum min' xs ->
-    maximum min xs = maximum min' xs.
-  Proof. intros; apply maximum_weaken_in, maximum_in; lia. Qed.
-
-  Lemma maximum0_unfold : forall x xs,
-    0 <= x ->
-    maximum0 (x :: xs) = Z.max x (maximum0 xs).
-  Proof.
-    intros; destruct xs as [| x' xs]; cbn; [lia |].
-    fold (maximum x xs); fold (maximum x' xs).
-    assert (x <= x' \/ x' < x) as [|] by lia.
-    - destruct (maximum_case x' xs) as (? & [? | (? & Hmax)]).
-      + rewrite (maximum_weaken_in x x' xs); auto; lia.
-      + destruct (maximum_case x xs) as (? & [Hin | (? & ?)]); try lia.
-        rewrite Forall_forall in Hmax; apply Hmax in Hin; lia.
-    - destruct (maximum_case x xs) as (? & [? | (? & Hmax)]).
-      + rewrite (maximum_weaken_in x' x xs); auto; lia.
-      + destruct (maximum_case x' xs) as (? & [Hin | (? & ?)]); try lia.
-        rewrite Forall_forall in Hmax; apply Hmax in Hin; lia.
-  Qed.
-End Maximum.
 
 Section Geom.
   Definition geom r n := map (fun x => Z.pow r (Z.of_nat x)) (seq 0 n).

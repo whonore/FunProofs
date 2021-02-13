@@ -71,7 +71,7 @@ Section DivNatFacts.
   Qed.
 End DivNatFacts.
 
-Section ZMaxFacts.
+Section ZMinMaxFacts.
   Open Scope Z.
 
   Lemma Zmax_case_strong_lt : forall n m (P : Z -> Type),
@@ -79,4 +79,10 @@ Section ZMaxFacts.
   Proof.
     intros; destruct (Z_lt_le_dec m n); rewrite ?Z.max_l, ?Z.max_r by lia; auto.
   Qed.
-End ZMaxFacts.
+
+  Lemma Zmin_case_strong_lt : forall n m (P : Z -> Type),
+    (m < n -> P m) -> (n <= m -> P n) -> P (Z.min n m).
+  Proof.
+    intros; destruct (Z_lt_le_dec m n); rewrite ?Z.min_l, ?Z.min_r by lia; auto.
+  Qed.
+End ZMinMaxFacts.

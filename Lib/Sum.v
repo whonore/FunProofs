@@ -5,6 +5,7 @@ From Coq Require Import
 From FunProofs.Lib Require Import
   AltMap
   Arith
+  Extrema
   Function
   List
   Tactics.
@@ -248,3 +249,16 @@ Module NCanSum <: CanSum(NSumOps).
 End NCanSum.
 
 Module NSum := GenSum(NSumOps)(NCanSum).
+
+Lemma nsum_bound : forall ns n,
+  NSum.sum' n ns <= n + length ns * Z.to_nat (maximum0 (map Z.of_nat ns)).
+Proof.
+  intros; induction ns; cbn -[maximum0] in *; [lia |]; NSum.normalize_sums.
+  rewrite maximum0_unfold by lia.
+  unfold NSumOps.Tadd.
+  match goal with
+  | |- ?n + ?x + ?y <= ?n + (?z + ?w) => enough (x <= z /\ n + y <= n + w) by lia
+  end.
+  split; [lia | etransitivity; eauto].
+  apply Nat.add_le_mono, Nat.mul_le_mono_nonneg_l; lia.
+Qed.
