@@ -27,7 +27,6 @@ Inductive bexp :=
   | BConst (b : bool)
   | BUn (f : bunary) (b : bexp)
   | BBin (f : bbin) (b1 b2 : bexp).
-Scheme Equality for bbin.
 
 Fixpoint binterp (e : bexp) (vars : varmap) : bool :=
   match e with
@@ -86,13 +85,15 @@ Fixpoint has_bop (f : bop) (e : bexp) :=
 Definition has_only (fs : list bop) (e : bexp) :=
   forall f, has_bop f e -> In f fs.
 
+Arguments has_only _ _ /.
+
 Definition bcomplete (fs : list bop) :=
   forall f : bool -> bool -> bool,
     exists f' : bexp,
       has_only fs f' /\
       (forall b1 b2, f b1 b2 = [[f' | {0 |-> b1, 1 |-> b2}[false] ]])%bexp.
 
-Definition bequiv (fs : list bop) (fs' : list bop) :=
+Definition bweaker (fs : list bop) (fs' : list bop) :=
   forall e : bexp,
     has_only fs e ->
     exists e' : bexp,
@@ -115,78 +116,77 @@ Qed.
 Instance subexp_preorder : PreOrder subexp.
 Proof. constructor; typeclasses eauto. Qed.
 
-Instance bequiv_refl : Reflexive bequiv.
-Proof. repeat red; intros; eauto. Qed.
+Instance bweaker_refl : Reflexive bweaker.
+Proof. repeat red; eauto. Qed.
 
-Instance bequiv_trans : Transitive bequiv.
+Instance bweaker_trans : Transitive bweaker.
 Proof.
-  red; unfold bequiv; intros * Hequiv1 Hequiv2 * Honly1.
-  edestruct Hequiv1 as (? & ? & ?); eauto.
-  edestruct Hequiv2 as (? & ? & ?); eauto.
+  red; unfold bweaker; intros * Hweak1 Hweak2 * Honly1.
+  edestruct Hweak1 as (? & ? & ?); eauto.
+  edestruct Hweak2 as (? & ? & ?); eauto.
 Qed.
 
-Instance bequiv_preorder : PreOrder bequiv.
+Instance bweaker_preorder : PreOrder bweaker.
 Proof. constructor; typeclasses eauto. Qed.
 
-Lemma bequiv_bcomplete : forall fs fs',
-  bcomplete fs -> bequiv fs fs' -> bcomplete fs'.
+Lemma bweaker_bcomplete fs fs' :
+  bcomplete fs -> bweaker fs fs' -> bcomplete fs'.
 Proof.
-  unfold bcomplete, bequiv; intros * Hcomplete Hequiv *.
+  unfold bcomplete, bweaker; intros Hcomplete Hweak *.
   destruct (Hcomplete f) as (f' & ? & ?).
-  destruct (Hequiv f') as (f'' & ? & ?); eauto.
+  destruct (Hweak f') as (f'' & ? & ?); eauto.
 Qed.
 
-Lemma has_only_perm : forall fs fs' e,
+Lemma has_only_perm fs fs' e :
   Permutation fs fs' -> has_only fs e -> has_only fs' e.
 Proof.
-  induction 1; auto; unfold has_only; cbn; intros Honly * Hbop;
+  induction 1; auto; cbn; intros Honly * Hbop;
     apply Honly in Hbop; intuition eauto using Permutation_in.
 Qed.
 
-Lemma bcomplete_perm : forall fs fs',
+Lemma bcomplete_perm fs fs' :
   Permutation fs fs' -> bcomplete fs -> bcomplete fs'.
 Proof.
-  unfold bcomplete; intros * Hperm Hcomp *.
+  unfold bcomplete; intros Hperm Hcomp *.
   destruct (Hcomp f) as (? & ? & ?); eauto using has_only_perm.
 Qed.
 
-Lemma bequiv_perm_l : forall fs fs' fs'',
-  Permutation fs fs' -> bequiv fs fs'' -> bequiv fs' fs''.
+Lemma bweaker_perm_l fs fs' fs'' :
+  Permutation fs fs' -> bweaker fs fs'' -> bweaker fs' fs''.
 Proof.
-  unfold bequiv; intros * Hperm Hequiv * Honly.
-  destruct (Hequiv e) as (? & ? & ?); eauto using has_only_perm, Permutation_sym.
+  unfold bweaker; intros Hperm Hweak * Honly.
+  destruct (Hweak e) as (? & ? & ?); eauto using has_only_perm, Permutation_sym.
 Qed.
 
-Lemma bequiv_perm_r : forall fs fs' fs'',
-  Permutation fs' fs'' -> bequiv fs fs' -> bequiv fs fs''.
+Lemma bweaker_perm_r fs fs' fs'' :
+  Permutation fs' fs'' -> bweaker fs fs' -> bweaker fs fs''.
 Proof.
-  unfold bequiv; intros * Hperm Hequiv * Honly.
-  destruct (Hequiv e) as (? & ? & ?); eauto using has_only_perm.
+  unfold bweaker; intros Hperm Hweak * Honly.
+  destruct (Hweak e) as (? & ? & ?); eauto using has_only_perm.
 Qed.
 
-Lemma has_bop_subexp' : forall e' e f,
+Lemma has_bop_subexp' e e' f :
   subexp' e e' -> has_bop f e -> has_bop f e'.
 Proof.
   induction e'; cbn; intros * Hsub Hbop; intuition (subst; eauto).
 Qed.
 
-Corollary has_bop_subexp : forall e' e f,
+Corollary has_bop_subexp e e' f :
   subexp e e' -> has_bop f e -> has_bop f e'.
 Proof.
-  intros * [|] **; subst; eauto using has_bop_subexp'.
+  intros [|] **; subst; eauto using has_bop_subexp'.
 Qed.
 
-Lemma has_only_subexp' : forall e' e fs,
+Lemma has_only_subexp' e e' fs :
   subexp' e e' -> has_only fs e' -> has_only fs e.
 Proof.
-  induction e'; cbn; intros * Hsub Honly; unfold has_only in *;
-    cbn in *; intuition (subst; eauto).
+  induction e'; cbn; intros * Hsub Honly; cbn in *; intuition (subst; eauto).
 Qed.
 
-Corollary has_only_subexp : forall e' e fs,
+Corollary has_only_subexp e e' fs :
   subexp e e' -> has_only fs e' -> has_only fs e.
 Proof.
-  intros * [|] **; subst; eauto using has_only_subexp'.
+  intros [|] **; subst; eauto using has_only_subexp'.
 Qed.
 
 Ltac ttable f :=
@@ -194,12 +194,12 @@ Ltac ttable f :=
            (f true false) eqn:TF,
            (f false true) eqn:FT,
            (f false false) eqn:FF.
-Ltac complete := split; [red; cbn; intros []; intuition (subst; auto) | intros [] []; cbn; auto].
+Ltac complete := cbv; split; [intros []; intuition (subst; auto) | now intros [] []; auto].
 
 Lemma neg_and_complete : bcomplete [BNeg; BAnd] :> bop.
 Proof.
   set (x := BVar 0); set (y := BVar 1).
-  hnf; intros; ttable f.
+  intros f; ttable f.
   - exists (T)%bexp; complete.
   - exists (!(!x && !y))%bexp; complete.
   - exists (!(!x && y))%bexp; complete.
@@ -218,27 +218,26 @@ Proof.
   - exists (F)%bexp; complete.
 Qed.
 
-Lemma neg_and_equiv_nand : bequiv ([BNeg; BAnd] :> bop) ([BNand] :> bop).
+Lemma has_only_bbin_inv fs f e1 e2 :
+  has_only fs (BBin f e1 e2) -> In (B2 f) fs.
+Proof. cbn; intuition auto. Qed.
+
+Lemma neg_and_weaker_nand : bweaker ([BNeg; BAnd] :> bop) ([BNand] :> bop).
 Proof.
   hnf; induction e; intros Honly.
-  - exists (BVar v); split; [hnf; cbn |]; auto.
-  - exists (BConst b); split; [hnf; cbn |]; auto.
-  - destruct f.
-    destruct IHe as (e' & ? & Heq); try solve [eapply has_only_subexp; eauto; cbn; auto].
-    exists (e' !& e')%bexp.
-    split; [unfold has_only in *; cbn in *; intros []; intuition (subst; auto) |].
-    cbn; intros; rewrite Heq, andb_diag; auto.
-  - destruct f;
-      try solve [match type of Honly with
-                 | has_only _ (BBin ?f _ _) => specialize (Honly f); cbn in Honly; intuition easy
-                 end].
-    destruct IHe1 as (e1' & ? & Heq1),
-             IHe2 as (e2' & ? & Heq2);
+  - now exists (v)%bexp.
+  - now exists (b)%bexp.
+  - destruct f, IHe as (e' & ? & Heq); [eapply has_only_subexp; eauto; cbn; auto |].
+    exists (e' !& e')%bexp; cbn in *.
+    split; [intros []; intuition (subst; auto) |].
+    intros; now rewrite Heq, andb_diag.
+  - apply has_only_bbin_inv in Honly as Hin; repeat destruct Hin as [Hin | Hin]; inv Hin.
+    destruct IHe1 as (e1' & ? & Heq1), IHe2 as (e2' & ? & Heq2);
       try solve [eapply has_only_subexp; eauto; cbn; auto].
-    exists ((e1' !& e2') !& (e1' !& e2'))%bexp.
-    split; [unfold has_only in *; cbn in *; intros []; intuition (subst; auto) |].
-    cbn; intros; rewrite Heq1, Heq2, andb_diag, negb_involutive; auto.
+    exists ((e1' !& e2') !& (e1' !& e2'))%bexp; cbn in *.
+    split; [intros []; intuition (subst; auto) |].
+    intros; now rewrite Heq1, Heq2, andb_diag, negb_involutive.
 Qed.
 
 Corollary nand_complete : bcomplete [BNand] :> bop.
-Proof. eapply bequiv_bcomplete; eauto using neg_and_equiv_nand, neg_and_complete. Qed.
+Proof. eapply bweaker_bcomplete; eauto using neg_and_weaker_nand, neg_and_complete. Qed.
