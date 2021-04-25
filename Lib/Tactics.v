@@ -41,6 +41,13 @@ Tactic Notation "cases" "-branch" "*" :=
          | H: _ |- _ => progress cases -branch H
          end.
 
+(* Split match cases in the goal. *)
+Ltac split_case :=
+  let H := fresh "goal_case" in
+  lazymatch goal with
+  | |- context[match ?b with _ => _ end] => destruct b eqn:H
+  end.
+
 (* Split conjunction and existentials in the goal. *)
 Ltac split_and :=
   repeat match goal with
