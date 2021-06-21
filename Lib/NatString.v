@@ -24,8 +24,7 @@ Fixpoint tostr' (n : uint) : string :=
   | D8 n' => String "8" (tostr' n')
   | D9 n' => String "9" (tostr' n')
   end%char.
-Definition tostr (n : nat) : string :=
-  tostr' (Nat.to_uint n).
+Definition tostr (n : nat) : string := tostr' (Nat.to_uint n).
 
 Definition digits := ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"]%char.
 
@@ -36,17 +35,13 @@ Proof.
 Qed.
 
 Lemma revapp_not_nil n : forall m, n <> Nil \/ m <> Nil -> revapp n m <> Nil.
-Proof.
-  induction n; cbn; intros; try apply IHn; intuition easy.
-Qed.
+Proof. induction n; cbn; intros; try apply IHn; intuition easy. Qed.
 
 Corollary to_uint_not_nil n : Nat.to_uint n <> Nil.
 Proof. now apply revapp_not_nil; left; apply to_little_uint_not_nil. Qed.
 
 Lemma tostr'_length_pos n : n <> Nil -> 0 < String.length (tostr' n).
-Proof.
-  induction n; cbn; intros; solve [easy | lia].
-Qed.
+Proof. induction n; cbn; intros; solve [easy | lia]. Qed.
 
 Corollary tostr_length_pos n : 0 < String.length (tostr n).
 Proof. apply tostr'_length_pos, to_uint_not_nil. Qed.

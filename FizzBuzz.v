@@ -40,5 +40,5 @@ Proof.
   assert (n mod 15 = 0 <-> n mod 3 = 0 /\ n mod 5 = 0) as ->.
   { intros; now rewrite !Nat.mod_divide, (Nat.lcm_divide_iff 3 5) by auto. }
   unfold fizz_buzz; repeat apply conj; repeat split_case; intros;
-    try solve [easy | lia | tostr_not].
+    solve [easy | lia | tostr_not].
 Qed.
