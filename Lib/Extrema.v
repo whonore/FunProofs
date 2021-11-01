@@ -33,8 +33,7 @@ Section Maximum.
   Qed.
 
   Lemma maximum0_case xs (m := maximum0 xs) :
-    xs <> nil ->
-    Forall (fun x => x <= m) xs /\ In m xs.
+    xs <> nil -> Forall (fun x => x <= m) xs /\ In m xs.
   Proof.
     intros; pose proof (maximum_case (hd 0 xs) xs).
     repeat intuition auto.
@@ -42,26 +41,16 @@ Section Maximum.
     prename (fun _ => _ < _) into Hfalse; inv Hfalse; lia.
   Qed.
 
-  Lemma maximum_lower_bound min xs :
-    min <= maximum min xs.
-  Proof.
-    unfold maximum; induction xs as [| x xs]; cbn; intros; lia.
-  Qed.
+  Lemma maximum_lower_bound min xs : min <= maximum min xs.
+  Proof. unfold maximum; induction xs as [| x xs]; cbn; intros; lia. Qed.
 
-  Lemma maximum_le_mono min min' xs :
-    min <= min' ->
-    maximum min xs <= maximum min' xs.
-  Proof.
-    unfold maximum; induction xs as [| x xs]; cbn; intros; lia.
-  Qed.
+  Lemma maximum_le_mono min min' xs : min <= min' -> maximum min xs <= maximum min' xs.
+  Proof. unfold maximum; induction xs as [| x xs]; cbn; intros; lia. Qed.
 
-  Lemma maximum_cons_le min xs x :
-    maximum min xs <= maximum min (x :: xs).
+  Lemma maximum_cons_le min xs x : maximum min xs <= maximum min (x :: xs).
   Proof. unfold maximum; intros; cbn; lia. Qed.
 
-  Lemma maximum_in min xs (m := maximum min xs) :
-    min < maximum min xs ->
-    In m xs.
+  Lemma maximum_in min xs (m := maximum min xs) : min < maximum min xs -> In m xs.
   Proof.
     induction xs as [| x xs]; cbn; intros; [lia |].
     fold (maximum min xs) in *.
@@ -70,25 +59,21 @@ Section Maximum.
   Qed.
 
   Lemma maximum_weaken_in min min' xs :
-    min <= min' ->
-    In (maximum min' xs) xs ->
-    maximum min xs = maximum min' xs.
+    min <= min' -> In (maximum min' xs) xs -> maximum min xs = maximum min' xs.
   Proof.
-    induction xs as [| x xs]; cbn; intros * Hlt Hin; [easy |].
+    induction xs as [| x xs]; cbn; intros Hlt Hin; [easy |].
     pose proof (maximum_le_mono min min' xs); unfold maximum in *.
     destruct Hin as [Heq | Hin]; try lia.
-    pattern (Z.max x (fold_right Z.max min' xs)); apply Z.max_case_strong; intros; try lia.
+    pattern (Z.max x (fold_right Z.max min' xs)); apply Z.max_case_strong; intros;
+      try lia.
     rewrite Z.max_r in Hin by auto; apply IHxs in Hin; auto; lia.
   Qed.
 
   Corollary maximum_weaken_lt min min' xs :
-    min <= min' < maximum min' xs ->
-    maximum min xs = maximum min' xs.
+    min <= min' < maximum min' xs -> maximum min xs = maximum min' xs.
   Proof. intros; apply maximum_weaken_in, maximum_in; lia. Qed.
 
-  Lemma maximum0_unfold x xs :
-    0 <= x ->
-    maximum0 (x :: xs) = Z.max x (maximum0 xs).
+  Lemma maximum0_unfold x xs : 0 <= x -> maximum0 (x :: xs) = Z.max x (maximum0 xs).
   Proof.
     intros; destruct xs as [| x' xs]; cbn; [lia |].
     fold (maximum x xs); fold (maximum x' xs).
@@ -119,13 +104,13 @@ Section Minimum.
       destruct IHxs as (Hmin & Hin); fold (minimum max xs); split.
     - constructor; auto using Z.le_min_l.
       rewrite Forall_forall in *; intros * Hin'; apply Hmin in Hin'; lia.
-    - pattern (Z.min x (minimum max xs)); apply Zmin_case_strong_lt; intros; intuition auto.
+    - pattern (Z.min x (minimum max xs)); apply Zmin_case_strong_lt; intros;
+        intuition auto.
       right; split; auto; constructor; auto; lia.
   Qed.
 
   Lemma minimum0_case xs (m := minimum0 xs) :
-    xs <> nil ->
-    Forall (fun x => m <= x) xs /\ In m xs.
+    xs <> nil -> Forall (fun x => m <= x) xs /\ In m xs.
   Proof.
     intros; pose proof (minimum_case (hd 0 xs) xs).
     repeat intuition auto.
@@ -133,26 +118,16 @@ Section Minimum.
     prename (fun _ => _ < _) into Hfalse; inv Hfalse; lia.
   Qed.
 
-  Lemma minimum_upper_bound max xs :
-    minimum max xs <= max.
-  Proof.
-    unfold minimum; induction xs as [| x xs]; cbn; intros; lia.
-  Qed.
+  Lemma minimum_upper_bound max xs : minimum max xs <= max.
+  Proof. unfold minimum; induction xs as [| x xs]; cbn; intros; lia. Qed.
 
-  Lemma minimum_le_mono max max' xs :
-    max <= max' ->
-    minimum max xs <= minimum max' xs.
-  Proof.
-    unfold minimum; induction xs as [| x xs]; cbn; intros; lia.
-  Qed.
+  Lemma minimum_le_mono max max' xs : max <= max' -> minimum max xs <= minimum max' xs.
+  Proof. unfold minimum; induction xs as [| x xs]; cbn; intros; lia. Qed.
 
-  Lemma minimum_cons_le max xs x :
-    minimum max (x :: xs) <= minimum max xs.
+  Lemma minimum_cons_le max xs x : minimum max (x :: xs) <= minimum max xs.
   Proof. unfold minimum; intros; cbn; lia. Qed.
 
-  Lemma minimum_in max xs (m := minimum max xs) :
-    minimum max xs < max ->
-    In m xs.
+  Lemma minimum_in max xs (m := minimum max xs) : minimum max xs < max -> In m xs.
   Proof.
     induction xs as [| x xs]; cbn; intros; [lia |].
     fold (minimum max xs) in *.
@@ -161,19 +136,17 @@ Section Minimum.
   Qed.
 
   Lemma minimum_weaken_in max max' xs :
-    max' <= max ->
-    In (minimum max' xs) xs ->
-    minimum max xs = minimum max' xs.
+    max' <= max -> In (minimum max' xs) xs -> minimum max xs = minimum max' xs.
   Proof.
-    induction xs as [| x xs]; cbn; intros * Hlt Hin; [easy |].
+    induction xs as [| x xs]; cbn; intros Hlt Hin; [easy |].
     pose proof (minimum_le_mono max' max xs); unfold minimum in *.
     destruct Hin as [Heq | Hin]; try lia.
-    pattern (Z.min x (fold_right Z.min max' xs)); apply Z.min_case_strong; intros; try lia.
+    pattern (Z.min x (fold_right Z.min max' xs)); apply Z.min_case_strong; intros;
+      try lia.
     rewrite Z.min_r in Hin by auto; apply IHxs in Hin; auto; lia.
   Qed.
 
   Corollary minimum_weaken_lt max max' xs :
-    minimum max' xs < max' <= max ->
-    minimum max xs = minimum max' xs.
+    minimum max' xs < max' <= max -> minimum max xs = minimum max' xs.
   Proof. intros; apply minimum_weaken_in, minimum_in; lia. Qed.
 End Minimum.

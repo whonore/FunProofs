@@ -21,7 +21,7 @@ Section KVMap.
     kvsets kvs (kvinit d).
 End KVMap.
 
-Arguments kvmap _ _ : clear implicits.
+#[global] Arguments kvmap _ _ : clear implicits.
 
 Declare Scope kvmap.
 Delimit Scope kvmap with kvmap.
@@ -35,24 +35,18 @@ Section KVMap.
   Open Scope kvmap.
   Context {key value : Type} `{EqDec key}.
 
-  Lemma kvget_init : forall (k : key) (d : value), kvinit d @ k = d.
+  Lemma kvget_init (k : key) (d : value) : kvinit d @ k = d.
   Proof. auto. Qed.
 
-  Lemma kvget_set_same : forall k v (m : kvmap key value),
-    m ! (k |-> v) @ k = v.
-  Proof.
-    unfold kvget, kvset; intros; cbn; rewrite eq_dec_true; auto.
-  Qed.
+  Lemma kvget_set_same k v (m : kvmap key value) : m ! (k |-> v) @ k = v.
+  Proof. unfold kvget, kvset; intros; cbn; rewrite eq_dec_true; auto. Qed.
 
-  Lemma kvget_set_other : forall k v' v (m : kvmap key value),
+  Lemma kvget_set_other k v' v (m : kvmap key value) :
     k <> v' -> m ! (k |-> v) @ v' = m @ v'.
-  Proof.
-    unfold kvget, kvset; intros; cbn; rewrite eq_dec_false; auto.
-  Qed.
+  Proof. unfold kvget, kvset; intros; cbn; rewrite eq_dec_false; auto. Qed.
 
-  Lemma kvsets_correct : forall kvs (m : kvmap key value) k v,
-    NoDup (map fst kvs) -> In (k |-> v) kvs ->
-    kvsets kvs m @ k = v.
+  Lemma kvsets_correct kvs : forall (m : kvmap key value) k v,
+    NoDup (map fst kvs) -> In (k |-> v) kvs -> kvsets kvs m @ k = v.
   Proof.
     induction kvs as [| kv' kvs]; cbn -[kvget]; intros * Huniq Hin;
       inv Huniq; intuition (subst; auto using kvget_set_same).
@@ -81,7 +75,7 @@ Section Array.
     arraysets kvs arrayinit.
 End Array.
 
-Arguments array _ : clear implicits.
+#[global] Arguments array _ : clear implicits.
 
 Declare Scope array.
 Delimit Scope array with array.
@@ -95,44 +89,37 @@ Section Array.
   Open Scope array.
   Context {value : Type} {sz : nat}.
 
-  Lemma arrayget_init : forall k, (@arrayinit value sz) @ k = None.
+  Lemma arrayget_init k : (@arrayinit value sz) @ k = None.
   Proof. unfold arrayget; intros; now destruct (_ <? _). Qed.
 
-  Lemma arrayget_set_same : forall k v (a a' : array value sz),
-    a ! (k |-> v) = Some a' ->
-    a' @ k = Some v.
+  Lemma arrayget_set_same k v (a a' : array value sz) :
+    a ! (k |-> v) = Some a' -> a' @ k = Some v.
   Proof.
-    unfold arrayget, arrayset; cbn [fst]; intros * Hset.
+    unfold arrayget, arrayset; cbn [fst]; intros Hset.
     cases Hset; simplify; now rewrite kvget_set_same.
   Qed.
 
-  Lemma arrayget_set_other : forall k v' v (a a' : array value sz),
-    k <> v' ->
-    a ! (k |-> v) = Some a' ->
-    a' @ v' = a @ v'.
+  Lemma arrayget_set_other k v' v (a a' : array value sz) :
+    k <> v' -> a ! (k |-> v) = Some a' -> a' @ v' = a @ v'.
   Proof.
-    unfold arrayget, arrayset; cbn [fst]; intros * ? Hset.
+    unfold arrayget, arrayset; cbn [fst]; intros ? Hset.
     cases Hset; simplify; now rewrite kvget_set_other.
   Qed.
 
-  Lemma arrayget_oob : forall (a : array value sz) (idx : nat),
-    sz <= idx ->
-    a @ idx = None.
+  Lemma arrayget_oob (a : array value sz) (idx : nat) : sz <= idx -> a @ idx = None.
   Proof.
-    unfold arrayget; intros * Hoob.
+    unfold arrayget; intros Hoob.
     apply Nat.leb_le in Hoob.
     rewrite Nat.ltb_antisym, Hoob; auto.
   Qed.
 
-  Lemma arrayget_in : forall (a : array value sz) (idx : nat) v,
-    a @ idx = Some v ->
-    idx < sz.
+  Lemma arrayget_in (a : array value sz) (idx : nat) v : a @ idx = Some v -> idx < sz.
   Proof.
-    unfold arrayget; intros * Hget.
+    unfold arrayget; intros Hget.
     cases Hget; apply Nat.leb_le; auto.
   Qed.
 
-  Lemma arrayset_oob : forall (a : array value sz) (idx : nat) v,
+  Lemma arrayset_oob (a : array value sz) (idx : nat) v :
     sz <= idx <-> a ! (idx |-> v) = None.
   Proof.
     unfold arrayset; split; cbn [fst]; [intros Hoob | intros Hset].
@@ -142,11 +129,7 @@ Section Array.
       cases Hset; auto.
   Qed.
 
-  Corollary arrayset_in : forall (a a' : array value sz) (idx : nat) v,
-    a ! (idx |-> v) = Some a' ->
-    idx < sz.
-  Proof.
-    intros * Hset.
-    now rewrite Nat.lt_nge, arrayset_oob, Hset.
-  Qed.
+  Corollary arrayset_in (a a' : array value sz) (idx : nat) v :
+    a ! (idx |-> v) = Some a' -> idx < sz.
+  Proof. intros Hset; now rewrite Nat.lt_nge, arrayset_oob, Hset. Qed.
 End Array.

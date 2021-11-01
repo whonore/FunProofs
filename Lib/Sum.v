@@ -21,20 +21,17 @@ Module Type SumOps.
   Parameter T_of_nat : nat -> T.
 End SumOps.
 
-Module Type CanSum(Import S: SumOps).
+Module Type CanSum(Import S : SumOps).
   Axiom T_sring : semi_ring_theory T0 T1 Tadd Tmul eq.
   Axiom T_add_1_r : forall n, Tadd n T1 = Tsucc n.
   Axiom T_of_nat_0 : T_of_nat 0%nat = T0.
   Axiom T_of_nat_inj_S : forall n, T_of_nat (S n) = Tsucc (T_of_nat n).
-  Axiom T_mod_mod : forall n m,
-    m <> T0 ->
-    Tmodulo (Tmodulo n m) m = Tmodulo n m.
+  Axiom T_mod_mod : forall n m, m <> T0 -> Tmodulo (Tmodulo n m) m = Tmodulo n m.
   Axiom T_add_mod : forall n m p,
-    p <> T0 ->
-    Tmodulo (Tadd n m) p = Tmodulo (Tadd (Tmodulo n p) (Tmodulo m p)) p.
+    p <> T0 -> Tmodulo (Tadd n m) p = Tmodulo (Tadd (Tmodulo n p) (Tmodulo m p)) p.
 End CanSum.
 
-Module GenSum(Import S: SumOps)(Import CS: CanSum(S)).
+Module GenSum(Import S : SumOps)(Import CS : CanSum(S)).
   Add Ring T_sring : T_sring.
 
   #[local] Notation "0" := T0.
@@ -63,8 +60,7 @@ Module GenSum(Import S: SumOps)(Import CS: CanSum(S)).
            | |- context[fold_left Tadd ?ns ?n] => fold (sum' n ns)
            end.
 
-  Lemma sum_shift : forall ns n,
-    sum' n ns = n + sum ns.
+  Lemma sum_shift ns : forall n, sum' n ns = n + sum ns.
   Proof.
     induction ns as [| m ns]; intros; cbn; ring_norm; [ring |]; fold_sums.
     rewrite (IHns (_ + _)), (IHns m); ring.
@@ -88,68 +84,59 @@ Module GenSum(Import S: SumOps)(Import CS: CanSum(S)).
 
   #[local] Ltac prep := cbn in *; normalize_sums; ring_norm.
 
-  Lemma sum_const {A} : forall (ns : list A) n m,
+  Lemma sum_const {A} (ns : list A) : forall n m,
     sum' n (map (const m) ns) = n + m * T_of_nat (length ns).
   Proof.
     induction ns; intros; prep; [ring |].
     rewrite IHns; ring.
   Qed.
 
-  Lemma sum_repeat : forall p n m,
-    sum' n (repeat m p) = n + m * T_of_nat p.
+  Lemma sum_repeat p : forall n m, sum' n (repeat m p) = n + m * T_of_nat p.
   Proof.
     induction p; intros; prep; [ring |].
     rewrite IHp; ring.
   Qed.
 
-  Lemma sum_add : forall (f g : T -> T) ns n,
+  Lemma sum_add (f g : T -> T) ns : forall n,
     sum' n (map (fun m => f m + g m) ns) = sum' n (map f ns) + sum (map g ns).
   Proof.
     induction ns; intros; prep; [ring |].
     rewrite IHns; ring.
   Qed.
 
-  Lemma sum_mul : forall (f : T -> T) ns n m,
+  Lemma sum_mul (f : T -> T) ns : forall n m,
     sum' n (map (fun p => m * f p) ns) = n + m * sum (map f ns).
   Proof.
     induction ns; intros; prep; [ring |].
     rewrite IHns; ring.
   Qed.
 
-  Lemma sum_succ : forall ns n,
-    sum' n (map Tsucc ns) = T_of_nat (length ns) + sum' n ns.
+  Lemma sum_succ ns n : sum' n (map Tsucc ns) = T_of_nat (length ns) + sum' n ns.
   Proof.
-    intros; erewrite map_ext by (symmetry; apply T_add_1_r).
+    erewrite map_ext by (symmetry; apply T_add_1_r).
     rewrite sum_add.
     fold (@const _ T 1); rewrite sum_const, map_id; ring.
   Qed.
 
-  Lemma sum_mul_id : forall ns n m,
-    sum' n (map (Tmul m) ns) = n + m * sum ns.
-  Proof. intros; rewrite sum_mul, map_id; auto. Qed.
+  Lemma sum_mul_id ns n m : sum' n (map (Tmul m) ns) = n + m * sum ns.
+  Proof. rewrite sum_mul, map_id; auto. Qed.
 
-  Lemma sum_rev : forall ns n,
-    sum' n (rev ns) = sum' n ns.
+  Lemma sum_rev ns : forall n, sum' n (rev ns) = sum' n ns.
   Proof.
     induction ns; intros; cbn; auto.
     rewrite fold_left_app; cbn; normalize_sums.
     rewrite IHns; ring.
   Qed.
 
-  Lemma sum_app : forall ns ms n m p,
-    n = m + p ->
-    sum' n (ns ++ ms) = sum' m ns + sum' p ms.
-  Proof.
-    unfold sum'; intros; subst; rewrite fold_left_app; normalize_sums; ring.
-  Qed.
+  Lemma sum_app ns ms n m p :
+    n = m + p -> sum' n (ns ++ ms) = sum' m ns + sum' p ms.
+  Proof. unfold sum'; intros; subst; rewrite fold_left_app; normalize_sums; ring. Qed.
 
-  Lemma sum_app0 : forall ns ms,
-    sum (ns ++ ms) = sum ns + sum ms.
-  Proof. now intros; rewrite (sum_app _ _ 0 0 0) by ring. Qed.
+  Lemma sum_app0 ns ms : sum (ns ++ ms) = sum ns + sum ms.
+  Proof. now rewrite (sum_app _ _ 0 0 0) by ring. Qed.
 
-  Lemma sum_mod : forall ns n m,
-    m <> 0 ->
-    (sum' n ns) mod m = sum' (n mod m) (map (fun x => x mod m) ns) mod m.
+  Lemma sum_mod ns : forall n m,
+    m <> 0 -> (sum' n ns) mod m = sum' (n mod m) (map (fun x => x mod m) ns) mod m.
   Proof.
     induction ns; intros; cbn; fold_sums; [now rewrite T_mod_mod |].
     rewrite IHns by auto. normalize_sums.
@@ -157,11 +144,11 @@ Module GenSum(Import S: SumOps)(Import CS: CanSum(S)).
   Qed.
 End GenSum.
 
-Module Type AltSumOps(Import S: SumOps).
+Module Type AltSumOps(Import S : SumOps).
   Parameter Topp : T -> T.
 End AltSumOps.
 
-Module GenAltSum(S: SumOps)(CS: CanSum(S))(AS: AltSumOps(S)).
+Module GenAltSum(S : SumOps)(CS : CanSum(S))(AS : AltSumOps(S)).
   Module GS := GenSum(S)(CS).
   Import S AS GS.
   Definition altsum (ns : list T) : T := sum (altmap Topp ns).
@@ -190,17 +177,14 @@ Module ZCanSum <: CanSum(ZSumOps).
   Lemma T_of_nat_0 : T_of_nat 0%nat = T0.
   Proof. apply Nat2Z.inj_0. Qed.
 
-  Lemma T_of_nat_inj_S : forall n, T_of_nat (S n) = Tsucc (T_of_nat n).
+  Lemma T_of_nat_inj_S n : T_of_nat (S n) = Tsucc (T_of_nat n).
   Proof. apply Nat2Z.inj_succ. Qed.
 
-  Lemma T_mod_mod : forall n m,
-    m <> T0 ->
-    Tmodulo (Tmodulo n m) m = Tmodulo n m.
+  Lemma T_mod_mod n m : m <> T0 -> Tmodulo (Tmodulo n m) m = Tmodulo n m.
   Proof. apply Z.mod_mod. Qed.
 
-  Lemma T_add_mod : forall n m p,
-    p <> T0 ->
-    Tmodulo (Tadd n m) p = Tmodulo (Tadd (Tmodulo n p) (Tmodulo m p)) p.
+  Lemma T_add_mod n m p :
+    p <> T0 -> Tmodulo (Tadd n m) p = Tmodulo (Tadd (Tmodulo n p) (Tmodulo m p)) p.
   Proof. apply Z.add_mod. Qed.
 End ZCanSum.
 
@@ -228,32 +212,29 @@ Module NCanSum <: CanSum(NSumOps).
   Lemma T_sring : semi_ring_theory T0 T1 Tadd Tmul eq.
   Proof. unfold T0, T1, Tadd, Tmul; constructor; auto with zarith. Qed.
 
-  Lemma T_add_1_r : forall n, Tadd n T1 = Tsucc n.
+  Lemma T_add_1_r n : Tadd n T1 = Tsucc n.
   Proof. apply Nat.add_1_r. Qed.
 
   Lemma T_of_nat_0 : T_of_nat 0%nat = T0.
   Proof. auto. Qed.
 
-  Lemma T_of_nat_inj_S : forall n, T_of_nat (S n) = Tsucc (T_of_nat n).
+  Lemma T_of_nat_inj_S n : T_of_nat (S n) = Tsucc (T_of_nat n).
   Proof. auto. Qed.
 
-  Lemma T_mod_mod : forall n m,
-    m <> T0 ->
-    Tmodulo (Tmodulo n m) m = Tmodulo n m.
+  Lemma T_mod_mod n m : m <> T0 -> Tmodulo (Tmodulo n m) m = Tmodulo n m.
   Proof. apply Nat.mod_mod. Qed.
 
-  Lemma T_add_mod : forall n m p,
-    p <> T0 ->
-    Tmodulo (Tadd n m) p = Tmodulo (Tadd (Tmodulo n p) (Tmodulo m p)) p.
+  Lemma T_add_mod n m p :
+    p <> T0 -> Tmodulo (Tadd n m) p = Tmodulo (Tadd (Tmodulo n p) (Tmodulo m p)) p.
   Proof. apply Nat.add_mod. Qed.
 End NCanSum.
 
 Module NSum := GenSum(NSumOps)(NCanSum).
 
-Lemma nsum_bound : forall ns n,
+Lemma nsum_bound ns n :
   NSum.sum' n ns <= n + length ns * Z.to_nat (maximum0 (map Z.of_nat ns)).
 Proof.
-  intros; induction ns; cbn -[maximum0] in *; [lia |]; NSum.normalize_sums.
+  induction ns; cbn -[maximum0] in *; [lia |]; NSum.normalize_sums.
   rewrite maximum0_unfold by lia.
   unfold NSumOps.Tadd.
   match goal with

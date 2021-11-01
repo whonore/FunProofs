@@ -51,28 +51,20 @@ Definition optimal : strategy := fun hats =>
 Definition wins (s : strategy) (hats : list Hat) : bool :=
   (guess s hats) ==? hats.
 
-Lemma count_hats_same : forall hats color,
+Lemma count_hats_same hats color :
   count_hats color (color :: hats) = S (count_hats color hats).
-Proof.
-  unfold count_hats; intros; cbn; simplify; auto.
-Qed.
+Proof. unfold count_hats; intros; cbn; simplify; auto. Qed.
 
-Definition count_hats_opp : forall hats color ocolor,
-  ocolor = Hat.opp color ->
-  count_hats color (ocolor :: hats) = count_hats color hats.
+Definition count_hats_opp hats color ocolor :
+  ocolor = Hat.opp color -> count_hats color (ocolor :: hats) = count_hats color hats.
 Proof.
   intros; subst; cbn; rewrite eqb_false; auto using Hat.opp_neq.
 Qed.
 
-Lemma guess_blue : forall hats,
-  optimal (Blue :: hats) = optimal hats.
-Proof.
-  unfold optimal; intros.
-  rewrite count_hats_opp; auto.
-Qed.
+Lemma guess_blue hats : optimal (Blue :: hats) = optimal hats.
+Proof. unfold optimal; intros; rewrite count_hats_opp; auto. Qed.
 
-Lemma guess_red : forall hats,
-  optimal (Red :: hats) = Hat.opp (optimal hats).
+Lemma guess_red hats : optimal (Red :: hats) = Hat.opp (optimal hats).
 Proof.
   unfold optimal; intros; cbn.
   unfold count_hats.
@@ -81,7 +73,7 @@ Proof.
   destruct (Nat.even _); auto.
 Qed.
 
-Lemma apply_guess_blue : forall hats,
+Lemma apply_guess_blue hats :
   guess optimal (Blue :: hats) = optimal hats :: guess optimal hats.
 Proof.
   unfold guess, mapIdx; intros; cbn.
@@ -89,7 +81,7 @@ Proof.
   erewrite map_ext; auto.
 Qed.
 
-Lemma apply_guess_red : forall hats,
+Lemma apply_guess_red hats :
   guess optimal (Red :: hats) = optimal hats :: map Hat.opp (guess optimal hats).
 Proof.
   unfold guess, mapIdx; intros; cbn.
@@ -99,9 +91,9 @@ Proof.
 Qed.
 
 (* For any set of n hats, the number with an even number of red hats is 2^(n-1). *)
-Lemma enumerate_hats_half_even' : forall n,
-  let all := enumerate (Red :: Blue :: nil) n in
-  let evens := filter (fun hats => Nat.even (count_hats Red hats)) all in
+Lemma enumerate_hats_half_even' n
+    (all := enumerate (Red :: Blue :: nil) n)
+    (evens := filter (fun hats => Nat.even (count_hats Red hats)) all) :
   length evens = 2 ^ (n - 1).
 Proof.
   induction n; cbn; auto.
@@ -124,11 +116,10 @@ Proof.
 Qed.
 
 (* For any set of n hats, exactly half have an even number of red hats. *)
-Corollary enumerate_hats_half_even : forall n,
-  0 < n ->
-  let all := enumerate (Red :: Blue :: nil) n in
-  let evens := filter (fun hats => Nat.even (count_hats Red hats)) all in
-  2 * length evens = length all.
+Corollary enumerate_hats_half_even n
+    (all := enumerate (Red :: Blue :: nil) n)
+    (evens := filter (fun hats => Nat.even (count_hats Red hats)) all) :
+  0 < n -> 2 * length evens = length all.
 Proof.
   intros; subst all evens.
   rewrite enumerate_hats_half_even', enumerate_length; cbn [length].
@@ -139,7 +130,7 @@ Qed.
 
 (* If the number of red hats is even then the optimal strategy guarantees every
    guess to be correct. Otherwise every guess is wrong. *)
-Theorem guess_wins_even : forall hats,
+Theorem guess_wins_even hats :
   guess optimal hats = if Nat.even (count_hats Red hats) then hats else map Hat.opp hats.
 Proof.
   induction hats as [| h hats]; intros; [cbn; auto |].
@@ -159,11 +150,10 @@ Proof.
 Qed.
 
 (* For any set of n hats, the optimal strategy guarantees a win for exactly half. *)
-Theorem guess_wins_half : forall n,
-  0 < n ->
-  let all := enumerate (Red :: Blue :: nil) n in
-  let win := filter (wins optimal) all in
-  2 * length win = length all.
+Theorem guess_wins_half n
+    (all := enumerate (Red :: Blue :: nil) n)
+    (win := filter (wins optimal) all) :
+  0 < n -> 2 * length win = length all.
 Proof.
   intros; subst all win; unfold wins.
   rewrite <- enumerate_hats_half_even; auto.
@@ -176,9 +166,8 @@ Proof.
 Qed.
 
 (* enumerate contains all sets of hats. *)
-Corollary enumerate_hats : forall hats,
-  In hats (enumerate (Red :: Blue :: nil) (length hats)).
+Corollary enumerate_hats hats : In hats (enumerate (Red :: Blue :: nil) (length hats)).
 Proof.
   intros; apply enumerate_finite.
-  intros h; destruct h; cbn; auto.
+  intros []; cbn; auto.
 Qed.

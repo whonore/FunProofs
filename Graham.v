@@ -17,7 +17,7 @@ Proof.
   constructor; intros [] [| []]; subst; auto.
 Defined.
 
-Lemma sub_1_lt : forall n, n <> 0 -> n - 1 < n.
+Lemma sub_1_lt n : n <> 0 -> n - 1 < n.
 Proof.
   induction n; intros; [easy |].
   cbn; destruct n; constructor.
@@ -38,16 +38,15 @@ Definition up n b p : nat := up' b (n, p).
 
 Notation "b '^{' n '}' p" := (up n b p) (at level 30, right associativity).
 
-Lemma up_0_mul : forall b p, b ^{0} p = b * p.
+Lemma up_0_mul b p : b ^{0} p = b * p.
 Proof. auto. Qed.
 
-Lemma up_pow_0_1 : forall n b, b ^{S n} 0 = 1.
+Lemma up_pow_0_1 n b : b ^{S n} 0 = 1.
 Proof. destruct n; auto. Qed.
 
-Lemma up_unroll : forall n b p,
-  b ^{S n} (S p) = b ^{n} b ^{S n} p.
+Lemma up_unroll n b p : b ^{S n} (S p) = b ^{n} b ^{S n} p.
 Proof.
-  intros; remember (up _ _ (up _ _ _)) as rhs.
+  remember (up _ _ (up _ _ _)) as rhs.
   unfold up, up'; rewrite Init.Wf.Fix_eq.
   - repeat fold (up' b); cbn [fst snd].
     repeat (destruct (Nat.eq_dec _ _); [easy |]).
@@ -56,27 +55,27 @@ Proof.
     cbn; rewrite !H; auto.
 Qed.
 
-Corollary up_1_pow : forall b p, b ^{1} p = b ^ p.
+Corollary up_1_pow b p : b ^{1} p = b ^ p.
 Proof.
   induction p; auto.
   rewrite up_unroll, up_0_mul, IHp; auto.
 Qed.
 
-Corollary up_pow_1_base : forall n b, b ^{n} 1 = b.
+Corollary up_pow_1_base n : forall b, b ^{n} 1 = b.
 Proof.
   induction n; intros.
   - rewrite up_0_mul, Nat.mul_1_r; auto.
   - rewrite up_unroll, up_pow_0_1; auto.
 Qed.
 
-Corollary up_1_1 : forall p n, 1 ^{S n} p = 1.
+Corollary up_1_1 p : forall n, 1 ^{S n} p = 1.
 Proof.
   induction p; intros.
   - rewrite up_pow_0_1; auto.
   - rewrite up_unroll, IHp, up_pow_1_base; auto.
 Qed.
 
-Corollary up_2_2_4 : forall n, 2 ^{n} 2 = 4.
+Corollary up_2_2_4 n : 2 ^{n} 2 = 4.
 Proof.
   induction n; auto.
   rewrite !up_unroll, up_pow_0_1, up_pow_1_base; auto.
@@ -91,20 +90,19 @@ Definition strict_increase_1 (min : nat) (f : nat -> nat) :=
 Definition abundant (min : nat) (f : nat -> nat) :=
   forall n, min < n -> n < f n.
 
-Lemma strict_increase_iff : forall min f,
-  strict_increase_1 min f <-> strict_increase min f.
+Lemma strict_increase_iff min f : strict_increase_1 min f <-> strict_increase min f.
 Proof.
-  unfold strict_increase, strict_increase_1; split; intros * Hstrict **.
+  unfold strict_increase, strict_increase_1; split; intros Hstrict **.
   - induction n'; [easy |].
     assert (n < n' \/ n = n') as [] by lia; subst; [| eapply Hstrict; lia].
     etransitivity; [eapply IHn'; lia |]; eapply Hstrict; lia.
   - apply Hstrict; lia.
 Qed.
 
-Lemma strict_increase_pos : forall min f, strict_increase min f ->
-  min < f (S min) -> forall n, min < n -> min < f n.
+Lemma strict_increase_pos min f :
+  strict_increase min f -> min < f (S min) -> forall n, min < n -> min < f n.
 Proof.
-  intros * Hstrict Hf1; induction n; intros; try easy.
+  intros Hstrict Hf1; induction n; intros; try easy.
   assert (min < n \/ n = min) as [|] by lia; subst; auto.
   etransitivity; [eapply IHn; eauto |].
   eapply Hstrict; lia.
@@ -116,7 +114,7 @@ Section Composition.
   Hypotheses (f_strict : strict_increase 0 f) (f_abundant : abundant 0 f).
   Hypotheses (g_base : g 1 = b) (g_succ : forall n, g (S n) = f (g n)).
 
-  Lemma strict_abundant_comp_pos : forall n, 0 < n -> 0 < g n.
+  Lemma strict_abundant_comp_pos n : 0 < n -> 0 < g n.
   Proof.
     induction n as [| []]; intros; [easy | |].
     - rewrite g_base; lia.
@@ -144,9 +142,7 @@ Section UpPowStrictAbundant.
   Notation f := (fun n p => b ^{n} p) (only parsing).
 
   Let mul_strict : strict_increase 0 (f 0).
-  Proof.
-    hnf; intros; apply Nat.mul_lt_mono_pos_l; auto; lia.
-  Qed.
+  Proof. hnf; intros; apply Nat.mul_lt_mono_pos_l; auto; lia. Qed.
 
   Let mul_abundant : abundant 0 (f 0).
   Proof.
@@ -155,7 +151,7 @@ Section UpPowStrictAbundant.
     apply Nat.mul_lt_mono_pos_r; lia.
   Qed.
 
-  Corollary up_pow_strict_abundant : forall n, strict_increase 0 (f n) /\ abundant 0 (f n).
+  Corollary up_pow_strict_abundant n : strict_increase 0 (f n) /\ abundant 0 (f n).
   Proof.
     induction n; auto using mul_strict, mul_abundant; destruct IHn; split.
     - eapply strict_abundant_comp_strict with (f := fun p => b ^{n} p) (b := b);
@@ -168,16 +164,16 @@ Section UpPowStrictAbundant.
 End UpPowStrictAbundant.
 
 Section UpBaseStrict.
-  Corollary up_pos : forall b n p, 0 < (S b) ^{S n} p.
+  Corollary up_pos b n p : 0 < (S b) ^{S n} p.
   Proof.
-    intros; destruct b; [rewrite up_1_1; auto |].
+    destruct b; [rewrite up_1_1; auto |].
     destruct p; [rewrite up_pow_0_1; auto |].
     apply strict_increase_pos; auto; try lia.
     - eapply up_pow_strict_abundant; lia.
     - rewrite up_pow_1_base; lia.
   Qed.
 
-  Corollary up_base_strict : forall n p, 0 < p -> strict_increase 0 (fun b => b ^{n} p).
+  Corollary up_base_strict n : forall p, 0 < p -> strict_increase 0 (fun b => b ^{n} p).
   Proof.
     induction n; intros * Hp; hnf; intros n' n'' **.
     - apply Nat.mul_lt_mono_pos_r; lia.
@@ -192,9 +188,9 @@ Section UpBaseStrict.
 End UpBaseStrict.
 
 Section UpDegreeStrict.
-  Corollary up_degree_strict : forall p b, 0 < p -> strict_increase 2 (fun n => b ^{n} p).
+  Corollary up_degree_strict p b : 0 < p -> strict_increase 2 (fun n => b ^{n} p).
   Proof.
-    intros * Hp; rewrite <- strict_increase_iff; hnf; intros.
+    intros Hp; rewrite <- strict_increase_iff; hnf; intros.
     revert p b Hp; induction n; intros; try lia.
     destruct p; try easy.
     rewrite !up_unroll.

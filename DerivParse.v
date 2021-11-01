@@ -94,24 +94,19 @@ Open Scope re_scope.
 Section Facts.
   Context `{alph : EqDec}.
 
-  Lemma nullable_match re1 re2 :
-    re1 ~=~ re2 ->
-    nullable re1 = nullable re2.
+  Lemma nullable_match re1 re2 : re1 ~=~ re2 -> nullable re1 = nullable re2.
   Proof. intros Hmatch; apply (Hmatch nil). Qed.
 
   Lemma derivative_match re1 re2 c :
-    re1 ~=~ re2 ->
-    derivative c re1 ~=~ derivative c re2.
+    re1 ~=~ re2 -> derivative c re1 ~=~ derivative c re2.
   Proof. red; intros Hmatch *; apply (Hmatch (c :: cs)). Qed.
 
   (* Empty *)
-  Lemma empty_no_match cs :
-    cs !~ ∅.
+  Lemma empty_no_match cs : cs !~ ∅.
   Proof. induction cs; auto. Qed.
 
   (* Null *)
-  Lemma null_one_match cs :
-    cs =~ ϵ <-> cs = nil.
+  Lemma null_one_match cs : cs =~ ϵ <-> cs = nil.
   Proof.
     split; intros H; subst; auto.
     destruct cs; auto; cbn in H.
@@ -119,8 +114,7 @@ Section Facts.
   Qed.
 
   (* Single *)
-  Lemma single_one_match cs c :
-    cs =~ `c` <-> cs = c :: nil.
+  Lemma single_one_match cs c : cs =~ `c` <-> cs = c :: nil.
   Proof.
     split; intros H; subst; cbn; simplify; auto.
     destruct cs as [| c' cs]; cbn in *; try easy.
@@ -130,33 +124,28 @@ Section Facts.
   Qed.
 
   (* Alt *)
-  Lemma alt_empty_l re :
-    ∅ | re ~=~ re.
+  Lemma alt_empty_l re : ∅ | re ~=~ re.
   Proof.
     red; intros; revert re.
     induction cs; intros; cbn; auto.
   Qed.
 
-  Lemma alt_commute re1 re2 :
-    re1 | re2 ~=~ re2 | re1.
+  Lemma alt_commute re1 re2 : re1 | re2 ~=~ re2 | re1.
   Proof.
     red; intros; revert re1 re2.
     induction cs; intros; cbn; auto with bool.
   Qed.
 
-  Lemma alt_assoc re1 re2 re3 :
-    re1 | (re2 | re3) ~=~ (re1 | re2) | re3.
+  Lemma alt_assoc re1 re2 re3 : re1 | (re2 | re3) ~=~ (re1 | re2) | re3.
   Proof.
     red; intros; revert re1 re2 re3.
     induction cs; intros; cbn; auto with bool.
   Qed.
 
-  Corollary alt_empty_r re :
-    re | ∅ ~=~ re.
+  Corollary alt_empty_r re : re | ∅ ~=~ re.
   Proof. rewrite alt_commute; apply alt_empty_l. Qed.
 
-  Lemma alt_diag re :
-    re | re ~=~ re.
+  Lemma alt_diag re : re | re ~=~ re.
   Proof.
     red; intros; revert re.
     induction cs; intros; cbn; auto using Bool.orb_diag.
@@ -166,17 +155,13 @@ Section Facts.
     matches (re1 | re2) cs = matches re1 cs || matches re2 cs.
   Proof. induction cs; intros; cbn; auto. Qed.
 
-  Corollary alt_match_true cs re1 re2 :
-    cs =~ (re1 | re2) <-> (cs =~ re1 \/ cs =~ re2).
+  Corollary alt_match_true cs re1 re2 : cs =~ (re1 | re2) <-> (cs =~ re1 \/ cs =~ re2).
   Proof. now rewrite alt_match_or, Bool.orb_true_iff. Qed.
 
-  Corollary alt_match_false cs re1 re2 :
-    cs !~ (re1 | re2) <-> (cs !~ re1 /\ cs !~ re2).
+  Corollary alt_match_false cs re1 re2 : cs !~ (re1 | re2) <-> (cs !~ re1 /\ cs !~ re2).
   Proof. now rewrite alt_match_or, Bool.orb_false_iff. Qed.
 
-  Lemma alt_cancel_l re re1 re2 :
-    re1 ~=~ re2 ->
-    re | re1 ~=~ re | re2.
+  Lemma alt_cancel_l re re1 re2 : re1 ~=~ re2 -> re | re1 ~=~ re | re2.
   Proof.
     red; intros Hmatch *; revert re re1 re2 Hmatch.
     induction cs; intros; cbn.
@@ -184,34 +169,28 @@ Section Facts.
     - erewrite !alt_match_or, (derivative_match re1); eauto.
   Qed.
 
-  Corollary alt_cancel_r re re1 re2 :
-    re1 ~=~ re2 ->
-    re1 | re ~=~ re2 | re.
+  Corollary alt_cancel_r re re1 re2 : re1 ~=~ re2 -> re1 | re ~=~ re2 | re.
   Proof. rewrite (alt_commute re1), (alt_commute re2); apply alt_cancel_l. Qed.
 
   (* Concat *)
-  Lemma concat_empty_l re :
-    ∅;;re ~=~ ∅.
+  Lemma concat_empty_l re : ∅;;re ~=~ ∅.
   Proof. red; intros; induction cs; auto. Qed.
 
-  Lemma concat_empty_r re :
-    re;;∅ ~=~ ∅.
+  Lemma concat_empty_r re : re;;∅ ~=~ ∅.
   Proof.
     red; intros; revert re.
     induction cs; intros; cbn; destruct (nullable _); auto.
     rewrite alt_empty_r; auto.
   Qed.
 
-  Lemma concat_null_l re :
-    ϵ;;re ~=~ re.
+  Lemma concat_null_l re : ϵ;;re ~=~ re.
   Proof.
     red; intros; revert re.
     induction cs; intros; cbn; auto.
     rewrite alt_match_or, concat_empty_l, empty_no_match; auto.
   Qed.
 
-  Lemma concat_null_r re :
-    re;;ϵ ~=~ re.
+  Lemma concat_null_r re : re;;ϵ ~=~ re.
   Proof.
     red; intros; revert re.
     induction cs; intros; cbn; auto using Bool.andb_true_r.
@@ -220,9 +199,7 @@ Section Facts.
   Qed.
 
   Lemma concat_match_true cs : forall re1 re2,
-    cs =~ re1;;re2 <->
-    exists cs1 cs2,
-      cs = cs1 ++ cs2 /\ cs1 =~ re1 /\ cs2 =~ re2.
+    cs =~ re1;;re2 <-> exists cs1 cs2, cs = cs1 ++ cs2 /\ cs1 =~ re1 /\ cs2 =~ re2.
   Proof.
     induction cs; cbn; split; intros H.
     - exists nil, nil; cbn; auto with bool.
@@ -241,15 +218,11 @@ Section Facts.
   Qed.
 
   Corollary concat_match_false' cs re1 re2 :
-    cs !~ re1;;re2 <->
-    ~(exists cs1 cs2,
-      cs = cs1 ++ cs2 /\ cs1 =~ re1 /\ cs2 =~ re2).
+    cs !~ re1;;re2 <-> ~(exists cs1 cs2, cs = cs1 ++ cs2 /\ cs1 =~ re1 /\ cs2 =~ re2).
   Proof. apply iff_not_true, concat_match_true. Qed.
 
   Corollary concat_match_false cs re1 re2 :
-    cs !~ re1;;re2 <->
-    forall cs1 cs2,
-      cs = cs1 ++ cs2 -> cs1 !~ re1 \/ cs2 !~ re2.
+    cs !~ re1;;re2 <-> forall cs1 cs2, cs = cs1 ++ cs2 -> cs1 !~ re1 \/ cs2 !~ re2.
   Proof.
     rewrite concat_match_false', not_exist.
     setoid_rewrite not_exist.
@@ -261,9 +234,7 @@ Section Facts.
       intuition congruence.
   Qed.
 
-  Lemma concat_cancel_l re re1 re2 :
-    re1 ~=~ re2 ->
-    re;;re1 ~=~ re;;re2.
+  Lemma concat_cancel_l re re1 re2 : re1 ~=~ re2 -> re;;re1 ~=~ re;;re2.
   Proof.
     red; intros Hmatch *; revert re re1 re2 Hmatch.
     induction cs; intros; cbn.
@@ -272,9 +243,7 @@ Section Facts.
       erewrite !alt_match_or, IHcs, derivative_match; eauto.
   Qed.
 
-  Lemma concat_cancel_r re re1 re2 :
-    re1 ~=~ re2 ->
-    re1;;re ~=~ re2;;re.
+  Lemma concat_cancel_r re re1 re2 : re1 ~=~ re2 -> re1;;re ~=~ re2;;re.
   Proof.
     red; intros Hmatch *; revert re re1 re2 Hmatch.
     induction cs; intros; cbn.
@@ -284,8 +253,7 @@ Section Facts.
       erewrite !alt_match_or, IHcs; eauto using derivative_match.
   Qed.
 
-  Lemma alt_concat_distr_l re1 re2 re3 :
-    re1;;(re2 | re3) ~=~ re1;;re2 | re1;;re3.
+  Lemma alt_concat_distr_l re1 re2 re3 : re1;;(re2 | re3) ~=~ re1;;re2 | re1;;re3.
   Proof.
     red; intros; destruct (matches (_ | _) _) eqn:Halt.
     - rewrite alt_match_true in Halt.
@@ -301,8 +269,7 @@ Section Facts.
       intuition.
   Qed.
 
-  Lemma alt_concat_distr_r re1 re2 re3 :
-    (re1 | re2);;re3 ~=~ re1;;re3 | re2;;re3.
+  Lemma alt_concat_distr_r re1 re2 re3 : (re1 | re2);;re3 ~=~ re1;;re3 | re2;;re3.
   Proof.
     red; intros; destruct (matches (_ | _) _) eqn:Halt.
     - rewrite alt_match_true in Halt.
@@ -318,8 +285,7 @@ Section Facts.
       intuition.
   Qed.
 
-  Lemma concat_assoc re1 re2 re3 :
-    re1;;(re2;;re3) ~=~ (re1;;re2);;re3.
+  Lemma concat_assoc re1 re2 re3 : re1;;(re2;;re3) ~=~ (re1;;re2);;re3.
   Proof.
     red; intros; revert re1 re2 re3.
     induction cs; intros; cbn; auto with bool.
@@ -330,12 +296,10 @@ Section Facts.
   Qed.
 
   (* Star *)
-  Lemma star_match_empty re :
-    nil =~ re*'.
+  Lemma star_match_empty re : nil =~ re*'.
   Proof. auto. Qed.
 
-  Lemma star_unfold re :
-    re*' ~=~ (ϵ | re;;re*').
+  Lemma star_unfold re : re*' ~=~ (ϵ | re;;re*').
   Proof.
     red; intros; revert re.
     induction cs; cbn; intros; auto.
@@ -345,8 +309,7 @@ Section Facts.
   Qed.
 
   (* Plus *)
-  Lemma plus_unfold re :
-    re+' ~=~ (re | re;;re+').
+  Lemma plus_unfold re : re+' ~=~ (re | re;;re+').
   Proof.
     unfold Plus; red; intros.
     rewrite alt_match_or, <- (concat_null_r re), <- alt_match_or, <- alt_concat_distr_l.

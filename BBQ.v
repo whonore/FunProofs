@@ -65,22 +65,18 @@ Section BBQ.
   Lemma bbq_init_bounds {A sz} : 0 < sz -> bbq_bounds (bbq_init A sz).
   Proof. constructor; cbn; lia. Qed.
 
-  Lemma bbq_enqueue_bounds {A sz} : forall (q q' : bbq A sz) v,
-    0 < sz -> bbq_bounds q ->
-    bbq_enqueue q v = Ok q' ->
-    bbq_bounds q'.
+  Lemma bbq_enqueue_bounds {A sz} (q q' : bbq A sz) v :
+    0 < sz -> bbq_bounds q -> bbq_enqueue q v = Ok q' -> bbq_bounds q'.
   Proof.
-    unfold bbq_enqueue, bbq_full, "==?"; intros * Hsz Hbounds Hq.
+    unfold bbq_enqueue, bbq_full, "==?"; intros Hsz Hbounds Hq.
     cases *; inv Hbounds; simplify.
     constructor; cbn; lia.
   Qed.
 
-  Lemma bbq_dequeue_bounds {A sz} : forall (q q' : bbq A sz) v,
-    0 < sz -> bbq_bounds q ->
-    bbq_dequeue q = Ok (q', v) ->
-    bbq_bounds q'.
+  Lemma bbq_dequeue_bounds {A sz} (q q' : bbq A sz) v :
+    0 < sz -> bbq_bounds q -> bbq_dequeue q = Ok (q', v) -> bbq_bounds q'.
   Proof.
-    unfold bbq_dequeue; intros * Hsz Hbounds Hq.
+    unfold bbq_dequeue; intros Hsz Hbounds Hq.
     cases Hq; inv Hbounds; simplify.
     pose proof (Nat.mod_upper_bound (q.(head) + 1) sz).
     constructor; cbn; lia.
@@ -99,7 +95,7 @@ Section BBQ.
     now rewrite arrayget_init, nth_error_nil.
   Qed.
 
-  Lemma bbq_list_refine_enqueue {A sz} : forall (q : bbq A sz) lq v,
+  Lemma bbq_list_refine_enqueue {A sz} (q : bbq A sz) lq v :
     0 < sz ->
     bbq_list_R q lq ->
     match bbq_enqueue q v with
@@ -108,7 +104,7 @@ Section BBQ.
     | _ => False
     end.
   Proof.
-    intros * Hsz HR; inv HR.
+    intros Hsz HR; inv HR.
     remember (bbq_enqueue q v) as res eqn:Hq.
     pose proof Hq; unfold bbq_enqueue, bbq_full, "==?" in Hq.
     cases *; simplify; auto.
@@ -132,7 +128,7 @@ Section BBQ.
       apply arrayset_oob in Hq_case0; lia.
   Qed.
 
-  Lemma bbq_list_refine_dequeue {A sz} : forall (q : bbq A sz) lq,
+  Lemma bbq_list_refine_dequeue {A sz} (q : bbq A sz) lq :
     0 < sz ->
     bbq_list_R q lq ->
     match bbq_dequeue q with
@@ -145,14 +141,14 @@ Section BBQ.
     | _ => False
     end.
   Proof.
-    intros * Hsz HR; inv HR.
+    intros Hsz HR; inv HR.
     remember (bbq_dequeue q) as res eqn:Hq.
     pose proof Hq; unfold bbq_dequeue, bbq_empty, "==?" in Hq.
     cases *; simplify; auto.
     - destruct lq; cbn in bbq_list_length0; [lia | split].
       + inv bbq_list_bounds0.
         specialize (bbq_list_nth0 0 ltac:(lia)).
-        rewrite Nat.add_0_r, Nat.mod_small in bbq_list_nth0 by lia; simplify; auto.
+        now rewrite Nat.add_0_r, Nat.mod_small in bbq_list_nth0 by lia; simplify.
       + constructor; cbn; eauto using bbq_dequeue_bounds; [lia |].
         inv bbq_list_bounds0.
         intros n' Hlt.

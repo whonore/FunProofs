@@ -28,7 +28,8 @@ Definition tostr (n : nat) : string := tostr' (Nat.to_uint n).
 
 Definition digits := ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"]%char.
 
-Lemma to_little_uint_not_nil n : forall acc, acc <> Nil -> Nat.to_little_uint n acc <> Nil.
+Lemma to_little_uint_not_nil n : forall acc,
+  acc <> Nil -> Nat.to_little_uint n acc <> Nil.
 Proof.
   induction n; cbn; intros; auto.
   apply IHn; now destruct acc.
@@ -48,13 +49,15 @@ Proof. apply tostr'_length_pos, to_uint_not_nil. Qed.
 
 #[local] Definition digits' := Eval cbn in map Some digits.
 
-Lemma tostr'_all_digits n (s := tostr' n) : forall m, m < String.length s -> In (get m s) digits'.
+Lemma tostr'_all_digits n (s := tostr' n) : forall m,
+  m < String.length s -> In (get m s) digits'.
 Proof.
   subst s; induction n; cbn; intros;
     solve [easy | destruct m; [intuition auto | apply IHn; lia]].
 Qed.
 
-Corollary tostr_all_digits n (s := tostr n) : forall m, m < String.length s -> In (get m s) digits'.
+Corollary tostr_all_digits n (s := tostr n) : forall m,
+  m < String.length s -> In (get m s) digits'.
 Proof. apply tostr'_all_digits. Qed.
 
 Corollary tostr_hd_digits n (s := tostr n) : In (get 0 s) digits'.

@@ -12,7 +12,7 @@ Section Intersect.
   Variable A : Type.
   Context `{EqDec A}.
 
-  Lemma disjoint_subset_card : forall (s ss1 ss2 : set A),
+  Lemma disjoint_subset_card (s : set A) : forall ss1 ss2,
     subset ss1 s -> subset ss2 s ->
     ~(exists x, Sets.In x ss1 /\ Sets.In x ss2) ->
     card ss1 + card ss2 <= card s.
@@ -32,13 +32,14 @@ Section Intersect.
     - exfalso; eauto.
     - apply le_n_S, IHs1; rewrite ?Heq; auto using subset_remove_remove.
       intros ?; destr *; eapply Hdisj; eauto using remove_in.
-    - rewrite Nat.add_comm; apply le_n_S, IHs1; rewrite ?Heq; auto using subset_remove_remove.
+    - rewrite Nat.add_comm; apply le_n_S, IHs1; rewrite ?Heq;
+        auto using subset_remove_remove.
       intros ?; destr *; eapply Hdisj; eauto using remove_in.
     - etransitivity; [eapply IHs1 |]; rewrite ?Heq; auto using subset_remove_remove.
       intros ?; destr *; eapply Hdisj; eauto using remove_in.
   Qed.
 
-  Lemma quorum_intersect : forall (s ss1 ss2 : set A),
+  Lemma quorum_intersect (s ss1 ss2 : set A) :
     subset ss1 s -> subset ss2 s ->
     card s < card ss1 + card ss2 ->
     exists x, Sets.In x ss1 /\ Sets.In x ss2.
@@ -52,11 +53,9 @@ Section Intersect.
       lia.
   Qed.
 
-  Corollary majority_intersect : forall (s ss1 ss2 : set A),
+  Corollary majority_intersect (s ss1 ss2 : set A) :
     subset ss1 s -> subset ss2 s ->
     card s < card ss1 * 2 -> card s < card ss2 * 2 ->
     exists x, Sets.In x ss1 /\ Sets.In x ss2.
-  Proof.
-    intros; eapply quorum_intersect with (s := s); eauto; lia.
-  Qed.
+  Proof. intros; eapply quorum_intersect with (s := s); eauto; lia. Qed.
 End Intersect.

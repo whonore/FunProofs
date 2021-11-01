@@ -14,14 +14,12 @@ Section ModFacts.
   Ltac ninduction x :=
     let tmp := fresh in
     let IH := fresh "IH" x in
-    intros until x; pop_hyp (0 <= x) tmp;
+    try intros until x; pop_hyp (0 <= x) tmp;
     pattern x; apply natlike_ind; [| | assumption];
       clear x tmp; [| intros x Hle IH].
 
-  Lemma pow_mod : forall x r r' n,
-    0 <= x -> n <> 0 ->
-    r mod n = r' mod n ->
-    (r ^ x) mod n = (r' ^ x) mod n.
+  Lemma pow_mod x : forall r r' n,
+    0 <= x -> n <> 0 -> r mod n = r' mod n -> (r ^ x) mod n = (r' ^ x) mod n.
   Proof.
     ninduction x; cbn; intros * ? Heq; auto.
     rewrite !Z.pow_succ_r by auto.
@@ -29,9 +27,7 @@ Section ModFacts.
     erewrite <- Heq, <- IHx, Z.mul_mod; auto.
   Qed.
 
-  Lemma mod_mod_mul : forall x n m,
-    n <> 0 -> 0 < m ->
-    (x mod (n * m)) mod n = x mod n.
+  Lemma mod_mod_mul x n m : n <> 0 -> 0 < m -> (x mod (n * m)) mod n = x mod n.
   Proof.
     intros.
     rewrite Z.rem_mul_r by auto.
@@ -39,12 +35,10 @@ Section ModFacts.
     rewrite Z.add_0_r, !Z.mod_mod; auto.
   Qed.
 
-  Lemma mod_mul_congr : forall x y n m,
-    n <> 0 -> 0 < m ->
-    x mod (n * m) = y mod (n * m) ->
-    x mod n = y mod n.
+  Lemma mod_mul_congr x y n m :
+    n <> 0 -> 0 < m -> x mod (n * m) = y mod (n * m) -> x mod n = y mod n.
   Proof.
-    intros * ? ? Hmod.
+    intros ? ? Hmod.
     assert (n * m <> 0) by (apply Z.neq_mul_0; lia).
     assert (x mod (n * m) = 0 \/ x mod (n * m) <> 0) as [Heq0 |] by lia.
     - rewrite Heq0 in Hmod; symmetry in Hmod.
@@ -61,11 +55,9 @@ End ModFacts.
 Section DivNatFacts.
   Open Scope nat.
 
-  Lemma div_range : forall n x y,
-    n * y <= x < (n + 1) * y ->
-    x / y = n.
+  Lemma div_range n x y : n * y <= x < (n + 1) * y -> x / y = n.
   Proof.
-    intros * Hrange.
+    intros Hrange.
     replace x with (y * n + (x - y * n)) by lia.
     symmetry; eapply Nat.div_unique; eauto; lia.
   Qed.
@@ -74,13 +66,13 @@ End DivNatFacts.
 Section ZMinMaxFacts.
   Open Scope Z.
 
-  Lemma Zmax_case_strong_lt : forall n m (P : Z -> Type),
+  Lemma Zmax_case_strong_lt n m (P : Z -> Type) :
     (m < n -> P n) -> (n <= m -> P m) -> P (Z.max n m).
   Proof.
     intros; destruct (Z_lt_le_dec m n); rewrite ?Z.max_l, ?Z.max_r by lia; auto.
   Qed.
 
-  Lemma Zmin_case_strong_lt : forall n m (P : Z -> Type),
+  Lemma Zmin_case_strong_lt n m (P : Z -> Type) :
     (m < n -> P m) -> (n <= m -> P n) -> P (Z.min n m).
   Proof.
     intros; destruct (Z_lt_le_dec m n); rewrite ?Z.min_l, ?Z.min_r by lia; auto.

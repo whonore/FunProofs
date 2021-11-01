@@ -4,9 +4,7 @@ From Coq Require Import
   List
   ZArith.
 
-Class EqDec (A : Type) := {
-  eq_dec (x y : A): {x = y} + {x <> y};
-}.
+Class EqDec (A : Type) := { eq_dec (x y : A) : {x = y} + {x <> y}; }.
 
 Definition eqb {A} `{EqDec A} (x y : A) : bool :=
   if eq_dec x y then true else false.
@@ -16,24 +14,16 @@ Module Import EqDecNotations.
   Infix "==?" := eqb (at level 70).
 End EqDecNotations.
 
-Fact eq_dec_true A `{EqDec} : forall x y (T E : A),
-  x = y ->
-  (if x == y then T else E) = T.
-Proof. intros; now destruct (_ == _). Qed.
+Fact eq_dec_true A `{EqDec} x y (T E : A) : x = y -> (if x == y then T else E) = T.
+Proof. now destruct (_ == _). Qed.
 
-Fact eq_dec_false A `{EqDec} : forall x y (T E : A),
-  x <> y ->
-  (if x == y then T else E) = E.
-Proof. intros; now destruct (_ == _). Qed.
+Fact eq_dec_false A `{EqDec} x y (T E : A) : x <> y -> (if x == y then T else E) = E.
+Proof. now destruct (_ == _). Qed.
 
-Corollary eqb_true `{EqDec} : forall x y,
-  x = y ->
-  x ==? y = true.
+Corollary eqb_true `{EqDec} x y : x = y -> x ==? y = true.
 Proof. intros; unfold eqb; rewrite eq_dec_true; auto. Qed.
 
-Corollary eqb_false `{EqDec} : forall x y,
-  x <> y ->
-  x ==? y = false.
+Corollary eqb_false `{EqDec} x y : x <> y -> x ==? y = false.
 Proof. intros; unfold eqb; rewrite eq_dec_false; auto. Qed.
 
 Ltac simplify_eq_dec :=

@@ -72,8 +72,7 @@ Fixpoint subexp' (e e' : bexp) :=
   | _ => False
   end.
 Definition subexp (e e' : bexp) := e = e' \/ subexp' e e'.
-
-Arguments subexp _ _ /.
+#[global] Arguments subexp _ _ /.
 
 Fixpoint has_bop (f : bop) (e : bexp) :=
   match e with
@@ -82,10 +81,8 @@ Fixpoint has_bop (f : bop) (e : bexp) :=
   | _ => False
   end.
 
-Definition has_only (fs : list bop) (e : bexp) :=
-  forall f, has_bop f e -> In f fs.
-
-Arguments has_only _ _ /.
+Definition has_only (fs : list bop) (e : bexp) := forall f, has_bop f e -> In f fs.
+#[global] Arguments has_only _ _ /.
 
 Definition bcomplete (fs : list bop) :=
   forall f : bool -> bool -> bool,
@@ -103,9 +100,7 @@ Instance subexp_refl : Reflexive subexp.
 Proof. repeat red; auto. Qed.
 
 Instance subexp'_trans : Transitive subexp'.
-Proof.
-  intros e1 e2 e3; revert e1 e2; induction e3; cbn; intuition (subst; eauto).
-Qed.
+Proof. intros e1 e2 e3; revert e1 e2; induction e3; cbn; intuition (subst; eauto). Qed.
 
 Instance subexp_trans : Transitive subexp.
 Proof.
@@ -129,23 +124,20 @@ Qed.
 Instance bweaker_preorder : PreOrder bweaker.
 Proof. constructor; typeclasses eauto. Qed.
 
-Lemma bweaker_bcomplete fs fs' :
-  bcomplete fs -> bweaker fs fs' -> bcomplete fs'.
+Lemma bweaker_bcomplete fs fs' : bcomplete fs -> bweaker fs fs' -> bcomplete fs'.
 Proof.
   unfold bcomplete, bweaker; intros Hcomplete Hweak *.
   destruct (Hcomplete f) as (f' & ? & ?).
   destruct (Hweak f') as (f'' & ? & ?); eauto.
 Qed.
 
-Lemma has_only_perm fs fs' e :
-  Permutation fs fs' -> has_only fs e -> has_only fs' e.
+Lemma has_only_perm fs fs' e : Permutation fs fs' -> has_only fs e -> has_only fs' e.
 Proof.
   induction 1; auto; cbn; intros Honly * Hbop;
     apply Honly in Hbop; intuition eauto using Permutation_in.
 Qed.
 
-Lemma bcomplete_perm fs fs' :
-  Permutation fs fs' -> bcomplete fs -> bcomplete fs'.
+Lemma bcomplete_perm fs fs' : Permutation fs fs' -> bcomplete fs -> bcomplete fs'.
 Proof.
   unfold bcomplete; intros Hperm Hcomp *.
   destruct (Hcomp f) as (? & ? & ?); eauto using has_only_perm.
@@ -165,29 +157,17 @@ Proof.
   destruct (Hweak e) as (? & ? & ?); eauto using has_only_perm.
 Qed.
 
-Lemma has_bop_subexp' e e' f :
-  subexp' e e' -> has_bop f e -> has_bop f e'.
-Proof.
-  induction e'; cbn; intros * Hsub Hbop; intuition (subst; eauto).
-Qed.
+Lemma has_bop_subexp' e e' f : subexp' e e' -> has_bop f e -> has_bop f e'.
+Proof. induction e'; cbn; intros Hsub Hbop; intuition (subst; eauto). Qed.
 
-Corollary has_bop_subexp e e' f :
-  subexp e e' -> has_bop f e -> has_bop f e'.
-Proof.
-  intros [|] **; subst; eauto using has_bop_subexp'.
-Qed.
+Corollary has_bop_subexp e e' f : subexp e e' -> has_bop f e -> has_bop f e'.
+Proof. intros [|] **; subst; eauto using has_bop_subexp'. Qed.
 
-Lemma has_only_subexp' e e' fs :
-  subexp' e e' -> has_only fs e' -> has_only fs e.
-Proof.
-  induction e'; cbn; intros * Hsub Honly; cbn in *; intuition (subst; eauto).
-Qed.
+Lemma has_only_subexp' e e' fs : subexp' e e' -> has_only fs e' -> has_only fs e.
+Proof. induction e'; cbn; intros Hsub Honly; cbn in *; intuition (subst; eauto). Qed.
 
-Corollary has_only_subexp e e' fs :
-  subexp e e' -> has_only fs e' -> has_only fs e.
-Proof.
-  intros [|] **; subst; eauto using has_only_subexp'.
-Qed.
+Corollary has_only_subexp e e' fs : subexp e e' -> has_only fs e' -> has_only fs e.
+Proof. intros [|] **; subst; eauto using has_only_subexp'. Qed.
 
 Ltac ttable f :=
   destruct (f true true) eqn:TT,
@@ -218,8 +198,7 @@ Proof.
   - exists (F)%bexp; complete.
 Qed.
 
-Lemma has_only_bbin_inv fs f e1 e2 :
-  has_only fs (BBin f e1 e2) -> In (B2 f) fs.
+Lemma has_only_bbin_inv fs f e1 e2 : has_only fs (BBin f e1 e2) -> In (B2 f) fs.
 Proof. cbn; intuition auto. Qed.
 
 Lemma neg_and_weaker_nand : bweaker ([BNeg; BAnd] :> bop) ([BNand] :> bop).
