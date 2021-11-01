@@ -12,6 +12,8 @@ Simple Coq proofs of random, interesting mathematical and data structure propert
   Regular expression parser using derivatives.
 - [Div9](Div9.v):
   Divisibility rules.
+- [FizzBuzz.v](FizzBuzz.v):
+  The FizzBuzz interview question.
 - [Graham](Graham.v) (incomplete):
   Graham's number and Knuth up-arrow notation.
 - [Hats](Hats.v):
@@ -20,3 +22,5 @@ Simple Coq proofs of random, interesting mathematical and data structure propert
   Two majority subsets have a non-empty intersection.
 - [Sqrt2](Sqrt2.v):
   Irrationality of sqrt 2.
+- [TriSum.v](TriSum.v):
+  The triangle sum and related sums for other powers.
