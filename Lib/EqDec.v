@@ -58,3 +58,13 @@ Instance bool_eq_dec : EqDec bool := {| eq_dec := bool_dec |}.
 Instance list_eq_dec {A} `{eq : EqDec A} : EqDec (list A) := {|
   eq_dec := list_eq_dec eq_dec
 |}.
+#[refine]
+Instance option_eq_dec {A} `{eq : EqDec A} : EqDec (option A) := {|
+  eq_dec := fun x y =>
+    match x, y with
+    | Some x, Some y => if eq_dec x y then left _ else right _
+    | None, None => left eq_refl
+    | _, _ => right _
+    end
+|}.
+Proof. all: abstract congruence. Defined.
