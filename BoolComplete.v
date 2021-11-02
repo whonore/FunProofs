@@ -4,11 +4,10 @@ From Coq Require Import
 From FunProofs.Lib Require Import
   KVMap
   Util.
-Import ListNotations.
 
-Notation "[ x ]  :> T" := (cons (x : T) nil) (at level 0) : list_scope.
+Notation "[ x ]  :> T" := ([x : T]) (at level 0) : list_scope.
 Notation "[ x ; y ; .. ; z ]  :> T" :=
-  (cons (x : T) (cons (y : T) .. (cons (z : T) nil) ..)) (at level 0) : list_scope.
+  (cons (x : T) (cons (y : T) .. ([z : T]) ..)) (at level 0) : list_scope.
 
 Declare Scope bexp.
 Delimit Scope bexp with bexp.

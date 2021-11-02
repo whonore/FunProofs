@@ -9,6 +9,7 @@ From FunProofs.Lib Require Import
   Logic
   Tactics.
 Import EqDecNotations.
+Import ListNotations.
 
 Section Sets.
   Context {A : Type}.
@@ -16,7 +17,7 @@ Section Sets.
 
   Definition set := {s : list A & NoDup s}.
 
-  Definition empty : set := existT _ nil (NoDup_nil _).
+  Definition empty : set := existT _ [] (NoDup_nil _).
 
   Definition add (x : A) (s : set) : set :=
     existT _
@@ -77,7 +78,7 @@ Section Sets.
 
   Fixpoint _disjoint (s u : list A) : bool :=
     match s with
-    | nil => true
+    | [] => true
     | x :: s1' =>
       if in_dec eq_dec x u then false else _disjoint s1' u
     end.
@@ -132,7 +133,7 @@ Section Sets.
   Lemma subset_empty s : subset s empty -> equiv s empty.
   Proof. intros Hsub; split; auto using subset_empty_l. Qed.
 
-  Lemma equiv_empty_nil s : equiv s empty -> projT1 s = nil.
+  Lemma equiv_empty_nil s : equiv s empty -> projT1 s = [].
   Proof.
     destruct s as ([| ? ?] & ?); auto; cbn; intros (Hsub & _).
     now specialize (Hsub _ ltac:(cbn; auto)).

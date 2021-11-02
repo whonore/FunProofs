@@ -92,7 +92,7 @@ Qed.
 
 (* For any set of n hats, the number with an even number of red hats is 2^(n-1). *)
 Lemma enumerate_hats_half_even' n
-    (all := enumerate (Red :: Blue :: nil) n)
+    (all := enumerate [Red; Blue] n)
     (evens := filter (fun hats => Nat.even (count_hats Red hats)) all) :
   length evens = 2 ^ (n - 1).
 Proof.
@@ -117,7 +117,7 @@ Qed.
 
 (* For any set of n hats, exactly half have an even number of red hats. *)
 Corollary enumerate_hats_half_even n
-    (all := enumerate (Red :: Blue :: nil) n)
+    (all := enumerate [Red; Blue] n)
     (evens := filter (fun hats => Nat.even (count_hats Red hats)) all) :
   0 < n -> 2 * length evens = length all.
 Proof.
@@ -151,7 +151,7 @@ Qed.
 
 (* For any set of n hats, the optimal strategy guarantees a win for exactly half. *)
 Theorem guess_wins_half n
-    (all := enumerate (Red :: Blue :: nil) n)
+    (all := enumerate [Red; Blue] n)
     (win := filter (wins optimal) all) :
   0 < n -> 2 * length win = length all.
 Proof.
@@ -166,7 +166,7 @@ Proof.
 Qed.
 
 (* enumerate contains all sets of hats. *)
-Corollary enumerate_hats hats : In hats (enumerate (Red :: Blue :: nil) (length hats)).
+Corollary enumerate_hats hats : In hats (enumerate [Red; Blue] (length hats)).
 Proof.
   intros; apply enumerate_finite.
   intros []; cbn; auto.

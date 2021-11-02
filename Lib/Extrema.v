@@ -33,7 +33,7 @@ Section Maximum.
   Qed.
 
   Lemma maximum0_case xs (m := maximum0 xs) :
-    xs <> nil -> Forall (fun x => x <= m) xs /\ In m xs.
+    xs <> [] -> Forall (fun x => x <= m) xs /\ In m xs.
   Proof.
     intros; pose proof (maximum_case (hd 0 xs) xs).
     repeat intuition auto.
@@ -110,7 +110,7 @@ Section Minimum.
   Qed.
 
   Lemma minimum0_case xs (m := minimum0 xs) :
-    xs <> nil -> Forall (fun x => m <= x) xs /\ In m xs.
+    xs <> [] -> Forall (fun x => m <= x) xs /\ In m xs.
   Proof.
     intros; pose proof (minimum_case (hd 0 xs) xs).
     repeat intuition auto.

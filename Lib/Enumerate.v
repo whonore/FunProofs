@@ -7,7 +7,7 @@ From FunProofs.Lib Require Import
 (* Enumerate all lists of length n using the elements of vals. *)
 Fixpoint enumerate {A} (vals : list A) (n : nat) : list (list A) :=
   match n with
-  | 0 => nil :: nil
+  | 0 => [[]]
   | S n' =>
     let fs := map cons vals in
     let vs := enumerate vals n' in

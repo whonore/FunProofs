@@ -2,11 +2,12 @@ From Coq Require Import
   Arith
   List
   Lia.
+Import ListNotations.
 
 Fixpoint altmap {A} (f : A -> A) (xs : list A) : list A :=
   match xs with
-  | nil => nil
-  | x :: nil => x :: nil
+  | [] => []
+  | [x] => [x]
   | x :: x' :: xs' => x :: f x' :: altmap f xs'
   end.
 

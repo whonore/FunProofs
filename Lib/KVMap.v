@@ -5,6 +5,7 @@ From FunProofs.Lib Require Import
   EqDec
   Tactics.
 Import EqDecNotations.
+Import ListNotations.
 
 Section KVMap.
   Context {key value : Type} `{EqDec key}.
@@ -29,7 +30,7 @@ Notation "k |-> v" := (k, v) (at level 10) : kvmap.
 Notation "m @ k" := (kvget k m) (at level 20) : kvmap.
 Notation "m ! k" := (kvset k m) (at level 20) : kvmap.
 Notation "{ kv1 , .. , kvn } [ d ]" :=
-  (kvbuild d (cons kv1%kvmap .. (cons kvn%kvmap nil) ..)) : kvmap.
+  (kvbuild d (cons kv1%kvmap .. ([kvn%kvmap]) ..)) : kvmap.
 
 Section KVMap.
   Open Scope kvmap.
@@ -83,7 +84,7 @@ Notation "k |-> v" := (k, v) (at level 10) : array.
 Notation "m @ k" := (arrayget k m) (at level 20) : array.
 Notation "m ! k" := (arrayset k m) (at level 20) : array.
 Notation "{ kv1 , .. , kvn } [ d ]" :=
-  (arraybuild d (cons kv1%array .. (cons kvn%array nil) ..)) : array.
+  (arraybuild d (cons kv1%array .. ([kvn%array]) ..)) : array.
 
 Section Array.
   Open Scope array.

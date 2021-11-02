@@ -4,8 +4,9 @@ From Coq Require Import
   List.
 From FunProofs.Lib Require Import
   Tactics.
+Export ListNotations.
 
-Notation "xs @@ x" := (xs ++ x :: nil) (at level 60, right associativity) : list_scope.
+Notation "xs @@ x" := (xs ++ [x]) (at level 60, right associativity) : list_scope.
 
 Section ListFacts.
   Context {A : Type}.
@@ -118,7 +119,7 @@ Section ListFacts.
   End Concat.
 
   Section NthError.
-    Lemma nth_error_nil n : @nth_error A nil n = None.
+    Lemma nth_error_nil n : @nth_error A [] n = None.
     Proof. now destruct n. Qed.
   End NthError.
 

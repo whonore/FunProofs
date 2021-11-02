@@ -55,7 +55,7 @@ Section RegLang.
 
   Fixpoint matches (re : RLang) (cs : list A) : bool :=
     match cs with
-    | nil => nullable re
+    | [] => nullable re
     | c :: cs' => matches (derivative c re) cs'
     end.
 
@@ -85,7 +85,7 @@ Notation "re1 ;; re2" := (Concat re1 re2) (at level 41, right associativity) : r
 Notation "re *'" := (Star re) (at level 30) : re_scope.
 Notation "re +'" := (Plus re) (at level 30) : re_scope.
 Notation "re ?" := (QMark re) (at level 30) : re_scope.
-Notation "'[r' c1 ; .. ; c2 ]" := (Class (cons c1 .. (cons c2 nil) ..)) : re_scope.
+Notation "'[r' c1 ; .. ; c2 ]" := (Class (cons c1 .. ([c2]) ..)) : re_scope.
 Notation "cs =~ re" := (matches re cs = true) (at level 70) : re_scope.
 Notation "cs !~ re" := (matches re cs = false) (at level 70) : re_scope.
 Infix "~=~" := (re_equiv) (at level 70) : re_scope.
@@ -95,7 +95,7 @@ Section Facts.
   Context `{alph : EqDec}.
 
   Lemma nullable_match re1 re2 : re1 ~=~ re2 -> nullable re1 = nullable re2.
-  Proof. intros Hmatch; apply (Hmatch nil). Qed.
+  Proof. intros Hmatch; apply (Hmatch []). Qed.
 
   Lemma derivative_match re1 re2 c :
     re1 ~=~ re2 -> derivative c re1 ~=~ derivative c re2.
@@ -106,7 +106,7 @@ Section Facts.
   Proof. induction cs; auto. Qed.
 
   (* Null *)
-  Lemma null_one_match cs : cs =~ ϵ <-> cs = nil.
+  Lemma null_one_match cs : cs =~ ϵ <-> cs = [].
   Proof.
     split; intros H; subst; auto.
     destruct cs; auto; cbn in H.
@@ -114,7 +114,7 @@ Section Facts.
   Qed.
 
   (* Single *)
-  Lemma single_one_match cs c : cs =~ `c` <-> cs = c :: nil.
+  Lemma single_one_match cs c : cs =~ `c` <-> cs = [c].
   Proof.
     split; intros H; subst; cbn; simplify; auto.
     destruct cs as [| c' cs]; cbn in *; try easy.
@@ -202,7 +202,7 @@ Section Facts.
     cs =~ re1;;re2 <-> exists cs1 cs2, cs = cs1 ++ cs2 /\ cs1 =~ re1 /\ cs2 =~ re2.
   Proof.
     induction cs; cbn; split; intros H.
-    - exists nil, nil; cbn; auto with bool.
+    - exists [], []; cbn; auto with bool.
     - destruct H as ([] & [] & ? & ? & ?); cbn in *; auto with bool; easy.
     - cases H.
       + rewrite alt_match_true, IHcs in H.
@@ -296,7 +296,7 @@ Section Facts.
   Qed.
 
   (* Star *)
-  Lemma star_match_empty re : nil =~ re*'.
+  Lemma star_match_empty re : [] =~ re*'.
   Proof. auto. Qed.
 
   Lemma star_unfold re : re*' ~=~ (ϵ | re;;re*').
@@ -318,7 +318,7 @@ Section Facts.
 
   (* Class *)
   Lemma class_match_true cs cs' :
-    cs' =~ Class cs <-> exists c, cs' = c :: nil /\ In c cs.
+    cs' =~ Class cs <-> exists c, cs' = [c] /\ In c cs.
   Proof.
     induction cs; cbn; split; intros H.
     - now rewrite empty_no_match in H.
@@ -376,8 +376,6 @@ Proof.
 Qed.
 
 Section Tests.
-  Import ListNotations.
-
   Let a := 0.
   Let b := 1.
   Let c := 2.

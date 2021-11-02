@@ -8,7 +8,6 @@ From Coq Require Import
 From FunProofs.Lib Require Import
   NatString
   Util.
-Import ListNotations.
 
 Open Scope string.
 

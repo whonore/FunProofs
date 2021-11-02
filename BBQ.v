@@ -89,7 +89,7 @@ Section BBQ.
       q.(buf) @ ((q.(head) + n) mod sz) = nth_error lq n;
   }.
 
-  Lemma bbq_list_refine_init {A sz} : 0 < sz -> bbq_list_R (bbq_init A sz) nil.
+  Lemma bbq_list_refine_init {A sz} : 0 < sz -> bbq_list_R (bbq_init A sz) [].
   Proof.
     constructor; cbn; intros; auto using bbq_init_bounds.
     now rewrite arrayget_init, nth_error_nil.
@@ -135,7 +135,7 @@ Section BBQ.
     | inl (q', v) =>
       match lq with
       | v' :: lq' => v = v' /\ bbq_list_R q' lq'
-      | nil => False
+      | [] => False
       end
     | inr BBQEmpty => length lq = 0
     | _ => False

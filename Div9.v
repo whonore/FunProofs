@@ -9,7 +9,6 @@ From FunProofs.Lib Require Import
   Series
   Util
   ZipMap.
-Import ListNotations.
 
 Open Scope Z.
 Import ZSum ZAltSum.
@@ -122,7 +121,7 @@ Section Div2.
   Lemma last_dig_even_congr ds (n := Z_of_digits ds) : n mod 2 = (last ds 0) mod 2.
   Proof.
     subst n; rewrite Z_of_digits_mod by easy.
-    assert (ds = nil \/ 0 < length ds)%nat as [|]
+    assert (ds = [] \/ 0 < length ds)%nat as [|]
       by (destruct ds; cbn; intuition lia); [subst; auto |].
     unfold tens; rewrite map_rev, (geom_mod _ 0), geom_zero, map_cons, map_repeat
       by easy.
