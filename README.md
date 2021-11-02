@@ -18,6 +18,8 @@ Simple Coq proofs of random, interesting mathematical and data structure propert
   Graham's number and Knuth up-arrow notation.
 - [Hats](Hats.v):
   Optimal strategy for a red/blue hat logic problem.
+- [OddE](OddE.v):
+  All odd numbers have an 'e' in English.
 - [Quorum](Quorum.v):
   Two majority subsets have a non-empty intersection.
 - [Sqrt2](Sqrt2.v):

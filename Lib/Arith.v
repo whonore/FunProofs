@@ -52,6 +52,40 @@ Section ModFacts.
   Qed.
 End ModFacts.
 
+Section NModFacts.
+  Lemma Even_mod_Even n m : Nat.Even n -> Nat.Even m -> Nat.Even (n mod m).
+  Proof.
+    intros (n' & ->) (m' & ->).
+    assert (m' = 0 \/ m' <> 0) as [-> | ?] by lia; [now rewrite <- Nat.even_spec |].
+    rewrite Nat.mul_mod_distr_l by lia; hnf; eauto.
+  Qed.
+
+  Lemma Odd_mod_Even n m : m <> 0 -> Nat.Odd n -> Nat.Even m -> Nat.Odd (n mod m).
+  Proof.
+    intros ? (n' & ->) (m' & ->).
+    rewrite Nat.mod_mul_r by lia.
+    rewrite (Nat.mul_comm 2 n'), Nat.div_add_l, Nat.add_0_r by lia.
+    rewrite Nat.add_mod, Nat.mod_mul, Nat.mod_1_l by lia.
+    rewrite Nat.add_comm; hnf; eauto.
+  Qed.
+
+  Corollary even_mod_even n m :
+    m <> 0 -> Nat.even m = true -> Nat.even (n mod m) = Nat.even n.
+  Proof.
+    intros ? ?%Nat.even_spec.
+    destruct (Nat.Even_or_Odd n) as [Heven | Hodd].
+    - pose proof Heven as ->%Nat.even_spec.
+      eapply (Even_mod_Even n m), Nat.even_spec in Heven as ->; auto.
+    - rewrite <- !Nat.negb_odd.
+      pose proof Hodd as ->%Nat.odd_spec.
+      eapply (Odd_mod_Even n m), Nat.odd_spec in Hodd as ->; auto.
+  Qed.
+
+  Corollary odd_mod_even n m :
+    m <> 0 -> Nat.even m = true -> Nat.odd (n mod m) = Nat.odd n.
+  Proof. now intros; rewrite <- !Nat.negb_even, even_mod_even. Qed.
+End NModFacts.
+
 Section DivNatFacts.
   Open Scope nat.
 

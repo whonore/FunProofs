@@ -30,6 +30,16 @@ Section ListFacts.
   (* Apply f to every index of a list. *)
   Definition mapIdx {B} (f : nat -> B) (xs : list A) := map f (seq 0 (length xs)).
 
+  Fixpoint chunks' (m n : nat) (xs chunk : list A) : list (list A) :=
+    match m, xs with
+    | _, [] => [chunk]
+    | 0, x :: xs => chunk :: chunks' n n xs [x]
+    | S m, x :: xs => chunks' m n xs (chunk @@ x)
+    end.
+
+  Definition chunks (n : nat) (xs : list A) : list (list A) :=
+    match xs, n with [], _ | _, 0 => [] | _, _ => chunks' n (n - 1) xs [] end.
+
   Section Repeat.
     Lemma repeat_nth (x : A) n : forall m, m < n -> nth_error (repeat x n) m = Some x.
     Proof.

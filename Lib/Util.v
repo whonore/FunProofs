@@ -10,6 +10,7 @@ From FunProofs.Lib Require Export
   Function
   Logic
   List
-  Tactics.
+  Tactics
+  String.
 
 #[global] Set Default Goal Selector "!".
