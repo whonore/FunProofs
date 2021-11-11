@@ -16,7 +16,7 @@ Import EqDecNotations.
 Module Hat.
   Inductive Hat := Red | Blue.
 
-  #[global] Instance Hat_eq_dec : EqDec Hat.
+  #[export] Instance Hat_eq_dec : EqDec Hat.
   Proof. constructor; decide equality. Defined.
 
   Definition opp h := match h with Red => Blue | Blue => Red end.
@@ -31,6 +31,7 @@ End Hat.
 Notation Hat := Hat.Hat.
 Notation Red := Hat.Red.
 Notation Blue := Hat.Blue.
+#[local] Existing Instance Hat.Hat_eq_dec.
 
 (* A strategy guesses a hat color given the visible hats. *)
 Definition strategy := list Hat -> Hat.
@@ -39,7 +40,7 @@ Definition strategy := list Hat -> Hat.
 Definition guess (s : strategy) (hats : list Hat) :=
   mapIdx (fun i => s (remove_nth i hats)) hats.
 
-Definition count_hats color hats :=
+Definition count_hats color (hats : list Hat) :=
   length (filter (fun h => h ==? color) hats).
 
 (* The optimal strategy guesses based on the number of red (or blue equivalently)

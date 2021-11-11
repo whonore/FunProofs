@@ -39,8 +39,8 @@ Module GenSum(Import S : SumOps)(Import CS : CanSum(S)).
   #[local] Infix "+" := Tadd.
   #[local] Infix "*" := Tmul.
   #[local] Infix "mod" := Tmodulo.
-  Hint Rewrite T_of_nat_0 T_of_nat_inj_S : ring.
-  Hint Rewrite <- T_add_1_r : ring.
+  #[local] Hint Rewrite T_of_nat_0 T_of_nat_inj_S : ring.
+  #[local] Hint Rewrite <- T_add_1_r : ring.
 
   #[local] Ltac ring_norm := repeat (
     autorewrite with ring in *;

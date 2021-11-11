@@ -95,32 +95,32 @@ Definition bweaker (fs : list bop) (fs' : list bop) :=
     exists e' : bexp,
       has_only fs' e' /\ (forall vs, [[e | vs]] = [[e' | vs]])%bexp.
 
-Instance subexp_refl : Reflexive subexp.
+#[export] Instance subexp_refl : Reflexive subexp.
 Proof. repeat red; auto. Qed.
 
-Instance subexp'_trans : Transitive subexp'.
+#[export] Instance subexp'_trans : Transitive subexp'.
 Proof. intros e1 e2 e3; revert e1 e2; induction e3; cbn; intuition (subst; eauto). Qed.
 
-Instance subexp_trans : Transitive subexp.
+#[export] Instance subexp_trans : Transitive subexp.
 Proof.
   unfold subexp; red; intuition (subst; auto).
   right; etransitivity; eauto.
 Qed.
 
-Instance subexp_preorder : PreOrder subexp.
+#[export] Instance subexp_preorder : PreOrder subexp.
 Proof. constructor; typeclasses eauto. Qed.
 
-Instance bweaker_refl : Reflexive bweaker.
+#[export] Instance bweaker_refl : Reflexive bweaker.
 Proof. repeat red; eauto. Qed.
 
-Instance bweaker_trans : Transitive bweaker.
+#[export] Instance bweaker_trans : Transitive bweaker.
 Proof.
   red; unfold bweaker; intros * Hweak1 Hweak2 * Honly1.
   edestruct Hweak1 as (? & ? & ?); eauto.
   edestruct Hweak2 as (? & ? & ?); eauto.
 Qed.
 
-Instance bweaker_preorder : PreOrder bweaker.
+#[export] Instance bweaker_preorder : PreOrder bweaker.
 Proof. constructor; typeclasses eauto. Qed.
 
 Lemma bweaker_bcomplete fs fs' : bcomplete fs -> bweaker fs fs' -> bcomplete fs'.

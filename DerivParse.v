@@ -62,16 +62,16 @@ Section RegLang.
   Definition re_equiv (re1 re2 : RLang) : Prop :=
     forall cs, matches re1 cs = matches re2 cs.
 
-  #[global] Instance re_equiv_refl : Reflexive re_equiv.
+  #[export] Instance re_equiv_refl : Reflexive re_equiv.
   Proof. now red; unfold re_equiv. Qed.
 
-  #[global] Instance re_equiv_sym : Symmetric re_equiv.
+  #[export] Instance re_equiv_sym : Symmetric re_equiv.
   Proof. now red; unfold re_equiv. Qed.
 
-  #[global] Instance re_equiv_trans : Transitive re_equiv.
+  #[export] Instance re_equiv_trans : Transitive re_equiv.
   Proof. red; unfold re_equiv; intros; etransitivity; auto. Qed.
 
-  #[global] Instance re_equiv_equiv : Equivalence re_equiv.
+  #[export] Instance re_equiv_equiv : Equivalence re_equiv.
   Proof. constructor; typeclasses eauto. Qed.
 End RegLang.
 
@@ -359,7 +359,7 @@ Section KleeneAlgebra.
   }.
 End KleeneAlgebra.
 
-Instance RLang_KleeneAlgebra `{EqDec} : KleeneAlgebra ∅ ϵ Alt Concat re_equiv.
+#[export] Instance RLang_KleeneAlgebra `{EqDec} : KleeneAlgebra ∅ ϵ Alt Concat re_equiv.
 Proof.
   constructor; intros; [
     apply alt_empty_l |

@@ -51,29 +51,29 @@ Section Sets.
 
   Definition subset (s u : set) : Prop := incl (projT1 s) (projT1 u).
 
-  #[global] Instance subset_refl : Reflexive subset.
+  #[export] Instance subset_refl : Reflexive subset.
   Proof. red; intros; apply incl_refl. Qed.
 
-  #[global] Instance subset_trans : Transitive subset.
+  #[export] Instance subset_trans : Transitive subset.
   Proof. red; intros; eapply incl_tran; eauto. Qed.
 
   Instance subset_preorder : PreOrder subset.
   Proof. constructor; typeclasses eauto. Qed.
 
   Definition equiv (s u : set) : Prop := subset s u /\ subset u s.
-  #[global] Instance equiv_refl : Reflexive equiv.
+  #[export] Instance equiv_refl : Reflexive equiv.
   Proof. split; reflexivity. Qed.
 
-  #[global] Instance equiv_sym : Symmetric equiv.
+  #[export] Instance equiv_sym : Symmetric equiv.
   Proof. unfold equiv; split; intuition auto. Qed.
 
-  #[global] Instance equiv_trans : Transitive equiv.
+  #[export] Instance equiv_trans : Transitive equiv.
   Proof. unfold equiv; split; etransitivity; intuition eauto. Qed.
 
-  #[global] Instance equiv_preorder : PreOrder equiv.
+  #[export] Instance equiv_preorder : PreOrder equiv.
   Proof. constructor; typeclasses eauto. Qed.
 
-  #[global] Instance equiv_equivalence : Equivalence equiv.
+  #[export] Instance equiv_equivalence : Equivalence equiv.
   Proof. constructor; typeclasses eauto. Qed.
 
   Fixpoint _disjoint (s u : list A) : bool :=
@@ -201,13 +201,13 @@ Section Sets.
       split; hnf; cbn; intros *; rewrite eq_dec_true by auto; auto.
   Qed.
 
-  Global Instance subset_equiv_morph : Proper (equiv ==> equiv ==> iff) subset.
+  #[export] Instance subset_equiv_morph : Proper (equiv ==> equiv ==> iff) subset.
   Proof.
     unfold equiv; repeat (hnf; intros).
     intuition auto; repeat (etransitivity; eauto).
   Qed.
 
-  Global Instance card_equiv_morph : Proper (equiv ==> eq) card.
+  #[export] Instance card_equiv_morph : Proper (equiv ==> eq) card.
   Proof. now repeat (hnf; intros); apply equiv_card. Qed.
 End Sets.
 

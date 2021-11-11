@@ -56,7 +56,7 @@ Section NModFacts.
   Lemma Even_mod_Even n m : Nat.Even n -> Nat.Even m -> Nat.Even (n mod m).
   Proof.
     intros (n' & ->) (m' & ->).
-    assert (m' = 0 \/ m' <> 0) as [-> | ?] by lia; [now rewrite <- Nat.even_spec |].
+    assert (m' = 0 \/ m' <> 0) as [-> | ?] by lia; [now esplit; cbn |].
     rewrite Nat.mul_mod_distr_l by lia; hnf; eauto.
   Qed.
 

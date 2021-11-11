@@ -42,14 +42,13 @@ Ltac simplify_eq_dec :=
                  | rewrite eqb_false by auto]
          end.
 
-Instance nat_eq_dec : EqDec nat := {| eq_dec := Nat.eq_dec |}.
-Instance Z_eq_dec : EqDec Z := {| eq_dec := Z.eq_dec |}.
-Instance bool_eq_dec : EqDec bool := {| eq_dec := bool_dec |}.
-Instance list_eq_dec {A} `{eq : EqDec A} : EqDec (list A) := {|
+#[export] Instance nat_eq_dec : EqDec nat := {| eq_dec := Nat.eq_dec |}.
+#[export] Instance Z_eq_dec : EqDec Z := {| eq_dec := Z.eq_dec |}.
+#[export] Instance bool_eq_dec : EqDec bool := {| eq_dec := bool_dec |}.
+#[export] Instance list_eq_dec {A} `{eq : EqDec A} : EqDec (list A) := {|
   eq_dec := list_eq_dec eq_dec
 |}.
-#[refine]
-Instance option_eq_dec {A} `{eq : EqDec A} : EqDec (option A) := {|
+#[refine, export] Instance option_eq_dec {A} `{eq : EqDec A} : EqDec (option A) := {|
   eq_dec := fun x y =>
     match x, y with
     | Some x, Some y => if eq_dec x y then left _ else right _
