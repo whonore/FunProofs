@@ -72,12 +72,12 @@ Definition english_20_99 (n : nat) : string :=
   if (n mod 10 =? 0)%nat then tens else tens ++ " " ++ rest.
 
 Definition english_0_99 (n : nat) : string :=
-  if n <? 20 then english_0_19 n else english_20_99 n.
+  if (n <? 20)%nat then english_0_19 n else english_20_99 n.
 
 Definition english_0_999 (n : nat) : string :=
   let pre := english_0_19 (n / 100) ++ " hundred" in
   let rest := english_0_99 (n mod 100) in
-  if (n <? 100) then rest
+  if (n <? 100)%nat then rest
   else if (n mod 100 =? 0)%nat then pre
   else pre ++ " " ++ rest.
 
@@ -150,7 +150,7 @@ Lemma odd_incl_0_19_0_99 n :
     incl (chars (english_0_19 m)) (chars (english_0_99 n)).
 Proof.
   unfold english_0_99; intros Hodd.
-  destruct (_ <? _) eqn:Hlt; [rewrite Nat.ltb_lt in Hlt |];
+  destruct (_ <? _)%nat eqn:Hlt; [rewrite Nat.ltb_lt in Hlt |];
     eauto using incl_refl, odd_incl_0_19_20_99.
 Qed.
 
